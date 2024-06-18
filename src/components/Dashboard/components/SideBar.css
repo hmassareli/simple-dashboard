@@ -1,0 +1,36 @@
+.side-bar {
+  width: 250px;
+  padding: 15px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  border-right: 2px solid rgba(246, 246, 246, 1);
+  box-sizing: border-box;
+}
+
+.side-bar ul {
+  padding: 0px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.side-bar li {
+  font-weight: 500;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 12px;
+  color: rgb(77, 77, 77);
+}
+.side-bar li:hover {
+  color: rgb(41, 41, 41);
+}
+
+.side-bar li:hover {
+  background-color: rgba(246, 246, 246, 1);
+}
