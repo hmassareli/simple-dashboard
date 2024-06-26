@@ -9,11 +9,13 @@ import SideBar from "../SideBar/SideBar";
 import "./index.css";
 
 const StatsBox = ({
+  type = "number",
   name,
   value,
   variance,
   icon: Icon,
 }: {
+  type?: "number" | "currency";
   name: string;
   value: number;
   variance: number;
@@ -27,10 +29,12 @@ const StatsBox = ({
       </div>
       <p style={{ fontSize: "32px", fontWeight: "500" }}>
         {" "}
-        {value?.toLocaleString("pt-BR", {
-          style: "currency",
-          currency: "BRL",
-        })}
+        {type === "number"
+          ? value
+          : value?.toLocaleString("pt-BR", {
+              style: "currency",
+              currency: "BRL",
+            })}
       </p>
       <p className={`percentage_growth ${variance > 0 ? "up" : "down"}`}>
         {variance > 0 ? <TrendUp /> : <TrendDown />}
@@ -58,6 +62,7 @@ function Dashboard() {
             }}
           >
             <StatsBox
+              type="currency"
               name="Receita"
               icon={ImgMoney}
               variance={revenueVariance}
