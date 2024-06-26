@@ -16,7 +16,7 @@ export function LoginForm() {
         <CardHeader>
           <CardTitle className="text-2xl">Login</CardTitle>
           <CardDescription>
-            Enter your email below to login to your account.
+            Escreva seu email abaixo para fazer login
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4">
@@ -30,7 +30,7 @@ export function LoginForm() {
             />
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">Senha</Label>
             <Input id="password" type="password" required />
           </div>
         </CardContent>
