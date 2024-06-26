@@ -23,7 +23,7 @@ const SideBar = () => {
           Products
         </li>
 
-        <li style={{ marginTop: "auto" }}>
+        <li onClick={() => navigate("/login")} style={{ marginTop: "auto" }}>
           <ImgLogout />
           Logout
         </li>
