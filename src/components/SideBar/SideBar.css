@@ -1,6 +1,6 @@
 .side-bar {
   width: 250px;
-  padding: 15px;
+  padding: 20px;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -29,6 +29,11 @@
 }
 .side-bar li:hover {
   color: rgb(41, 41, 41);
+}
+
+.side-bar h1 {
+  margin: 0;
+  line-height: normal;
 }
 
 .side-bar li:hover {

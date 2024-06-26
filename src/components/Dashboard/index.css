@@ -4,3 +4,56 @@ body {
   padding: 0;
   height: 100%;
 }
+
+.dashboard {
+  display: flex;
+  height: 100%;
+  width: 100%;
+}
+
+.content {
+  flex: 1;
+  background-color: rgba(252, 252, 252, 1);
+}
+
+.stats_header {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.stats_box {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  background-color: white;
+  border-radius: 12px;
+  gap: 5px;
+  box-shadow: 0px 0px 12px 0px rgba(0, 0, 0, 0.1);
+  flex: 1;
+  min-width: 180px;
+}
+
+* {
+  margin: 0;
+}
+.percentage_growth {
+  font-size: 12px;
+  color: rgba(171, 171, 171, 1);
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  gap: 4px;
+}
+
+.percentage_growth strong {
+  font-weight: 500;
+}
+
+.percentage_growth.up strong {
+  color: rgba(131, 173, 125, 1);
+}
+
+.percentage_growth.down strong {
+  color: rgba(235, 87, 87, 1);
+}
