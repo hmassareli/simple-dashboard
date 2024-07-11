@@ -4,9 +4,11 @@ import ImgProduto from "../../assets/produtos.svg?react";
 
 import { useNavigate } from "react-router-dom";
 
+import { useAuth } from "@/contexts/AuthContext";
 import "./SideBar.css";
 
 const SideBar = () => {
+  const { logout } = useAuth();
   const navigate = useNavigate();
   return (
     <div className="side-bar">
@@ -23,7 +25,7 @@ const SideBar = () => {
           Products
         </li>
 
-        <li onClick={() => navigate("/login")} style={{ marginTop: "auto" }}>
+        <li onClick={() => logout()} style={{ marginTop: "auto" }}>
           <ImgLogout />
           Logout
         </li>
