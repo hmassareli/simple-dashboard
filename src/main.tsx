@@ -4,12 +4,18 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Dashboard from "./components/Dashboard/index.tsx";
 import { LoginForm } from "./components/Login/Login.tsx";
 import Products from "./components/Products/index.tsx";
+import ProtectedRoute from "./components/ProtectedRoute.tsx";
+import { AuthProvider } from "./contexts/AuthContext.tsx";
 import "./index.css";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Dashboard />,
+    element: (
+      <ProtectedRoute>
+        <Dashboard />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/products",
@@ -23,6 +29,8 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
   </React.StrictMode>
 );
