@@ -350,7 +350,7 @@ export default function Products() {
   );
 }
 
-function CirclePlusIcon(props) {
+function CirclePlusIcon(props: React.ComponentProps<"svg">) {
   return (
     <svg
       {...props}
@@ -371,7 +371,7 @@ function CirclePlusIcon(props) {
   );
 }
 
-function FilePenIcon(props) {
+function FilePenIcon(props: React.ComponentProps<"svg">) {
   return (
     <svg
       {...props}
@@ -392,7 +392,7 @@ function FilePenIcon(props) {
   );
 }
 
-function SearchIcon(props) {
+function SearchIcon(props: React.ComponentProps<"svg">) {
   return (
     <svg
       {...props}
@@ -412,7 +412,7 @@ function SearchIcon(props) {
   );
 }
 
-function TrashIcon(props) {
+function TrashIcon(props: React.ComponentProps<"svg">) {
   return (
     <svg
       {...props}
@@ -433,7 +433,7 @@ function TrashIcon(props) {
   );
 }
 
-function XIcon(props) {
+function XIcon(props: React.ComponentProps<"svg">) {
   return (
     <svg
       {...props}
