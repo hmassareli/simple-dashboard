@@ -1,6 +1,6 @@
-import axios from "axios";
+import api from "./api";
 
 export const getProducts = async () => {
-  const { data } = await axios.get("http://localhost:8000/admin/list-products");
+  const { data } = await api.get("/admin/list-products");
   return data;
 };
