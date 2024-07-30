@@ -1,5 +1,4 @@
 "use client";
-
 import {
   MultiSelector,
   MultiSelectorContent,
@@ -10,7 +9,7 @@ import {
 } from "@/components/extension/multi-select";
 import { useEffect, useState } from "react";
 
-const MultiSelectState = ({
+const CustomMultiSelect = ({
   values = [],
   onValuesChange,
   placeholder,
@@ -22,16 +21,12 @@ const MultiSelectState = ({
   const [value, setValue] = useState<string[]>([]);
 
   useEffect(() => {
-    setValue(values.map((item) => item.id.toString()));
-  }, [values]);
-
-  useEffect(() => {
     onValuesChange(value.map((item) => parseInt(item)));
   }, [value]);
 
   return (
     <MultiSelector values={value} onValuesChange={setValue}>
-      <MultiSelectorTrigger>
+      <MultiSelectorTrigger options={values}>
         <MultiSelectorInput placeholder={placeholder} />
       </MultiSelectorTrigger>
       <MultiSelectorContent>
@@ -47,4 +42,4 @@ const MultiSelectState = ({
   );
 };
 
-export default MultiSelectState;
+export default CustomMultiSelect;

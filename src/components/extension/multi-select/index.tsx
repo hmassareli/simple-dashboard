@@ -16,6 +16,8 @@ import React, {
   forwardRef,
   useCallback,
   useContext,
+  useEffect,
+  useRef,
   useState,
 } from "react";
 
@@ -58,6 +60,7 @@ const MultiSelector = ({
   const [inputValue, setInputValue] = useState("");
   const [open, setOpen] = useState<boolean>(false);
   const [activeIndex, setActiveIndex] = useState<number>(-1);
+  const listRef = useRef<HTMLDivElement | null>(null);
 
   const onValueChangeHandler = useCallback(
     (val: string) => {
@@ -69,8 +72,6 @@ const MultiSelector = ({
     },
     [value]
   );
-
-  // TODO : change from else if use to switch case statement
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLDivElement>) => {
@@ -123,6 +124,18 @@ const MultiSelector = ({
     [value, inputValue, activeIndex, loop]
   );
 
+  useEffect(() => {
+    if (listRef.current && activeIndex !== -1) {
+      const activeItem = listRef.current.children[activeIndex];
+      if (activeItem) {
+        (activeItem as HTMLElement).scrollIntoView({
+          behavior: "smooth",
+          block: "nearest",
+        });
+      }
+    }
+  }, [activeIndex]);
+
   return (
     <MultiSelectContext.Provider
       value={{
@@ -153,14 +166,21 @@ const MultiSelector = ({
 
 const MultiSelectorTrigger = forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, children, ...props }, ref) => {
+  React.HTMLAttributes<HTMLDivElement> & {
+    options: { id: number; name: string }[];
+  }
+>(({ className, children, options, ...props }, ref) => {
   const { value, onValueChange, activeIndex } = useMultiSelect();
 
   const mousePreventDefault = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
   }, []);
+
+  const findOptionName = (id: string) => {
+    const option = options.find((option) => option.id.toString() === id);
+    return option ? option.name : id;
+  };
 
   return (
     <div
@@ -180,7 +200,7 @@ const MultiSelectorTrigger = forwardRef<
           )}
           variant={"secondary"}
         >
-          <span className="text-xs">{item}</span>
+          <span className="text-xs">{findOptionName(item)}</span>
           <button
             aria-label={`Remove ${item} option`}
             aria-roledescription="button to remove option"

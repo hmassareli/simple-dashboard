@@ -33,15 +33,17 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import CustomMultiSelect from "../CustomMultiSelect";
 
 export function CreateProduct() {
   const [categories, setCategories] = useState<{ id: number; name: string }[]>(
     []
   );
+  const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
 
   useEffect(() => {
     api.get("admin/list-categories").then((res) => {
-      console.log(res.data);
+      setCategories(res.data);
     });
   }, []);
 
@@ -53,18 +55,18 @@ export function CreateProduct() {
             <BreadcrumbList>
               <BreadcrumbItem>
                 <BreadcrumbLink asChild>
-                  <Link to="#">Dashboard</Link>
+                  <Link to="/">Dashboard</Link>
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
                 <BreadcrumbLink asChild>
-                  <Link to="#">Products</Link>
+                  <Link to="/products">Products</Link>
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
-                <BreadcrumbPage>Edit Product</BreadcrumbPage>
+                <BreadcrumbPage>Create Product</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
@@ -118,24 +120,12 @@ export function CreateProduct() {
                         />
                       </div>
                       <div className="grid gap-3">
-                        <Label htmlFor="category">Categoria</Label>
-                        <Select>
-                          <SelectTrigger
-                            id="category"
-                            aria-label="Select category"
-                          >
-                            <SelectValue placeholder="Selecione a categoria" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="clothing">Clothing</SelectItem>
-                            <SelectItem value="electronics">
-                              Electronics
-                            </SelectItem>
-                            <SelectItem value="accessories">
-                              Accessories
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
+                        <Label htmlFor="category">Categorias</Label>
+                        <CustomMultiSelect
+                          placeholder="Selecione as Categorias"
+                          values={categories}
+                          onValuesChange={setSelectedCategories}
+                        />
                       </div>
                       <div className="grid gap-3">
                         <Label htmlFor="category">Marca</Label>
@@ -164,22 +154,13 @@ export function CreateProduct() {
               <div className="grid auto-rows-max items-start gap-4 lg:gap-8">
                 <Card x-chunk="dashboard-07-chunk-3">
                   <CardHeader>
-                    <CardTitle>Product Status</CardTitle>
+                    <CardTitle>Estoque do Produto</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="grid gap-6">
                       <div className="grid gap-3">
-                        <Label htmlFor="status">Status</Label>
-                        <Select>
-                          <SelectTrigger id="status" aria-label="Select status">
-                            <SelectValue placeholder="Select status" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="draft">Draft</SelectItem>
-                            <SelectItem value="published">Active</SelectItem>
-                            <SelectItem value="archived">Archived</SelectItem>
-                          </SelectContent>
-                        </Select>
+                        <Label htmlFor="status">Quantidade</Label>
+                        <Input type="number" id="stock" />
                       </div>
                     </div>
                   </CardContent>
