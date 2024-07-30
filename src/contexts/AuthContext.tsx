@@ -1,4 +1,5 @@
 // src/contexts/AuthContext.js
+import api from "@/api/api";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { authenticate } from "../api/auth";
 
@@ -14,11 +15,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     // Check for a token in localStorage and update the state accordingly
     const token = localStorage.getItem("authToken");
-    if (token) {
-      setIsAuthenticated(true);
-    } else {
-      setIsAuthenticated(false);
-    }
+    api
+      .get("/platform/test-token")
+      .then((response) => {
+        if (response.status === 200) {
+          setIsAuthenticated(true);
+        }
+      })
+      .catch(() => {
+        setIsAuthenticated(false);
+      });
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
@@ -28,7 +34,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setIsAuthenticated(true);
       return true;
     } catch (error) {
-      alert("Credenciais Inválidas");
+      alert("Credenciais Inválidas" + error);
       return false;
     }
   };

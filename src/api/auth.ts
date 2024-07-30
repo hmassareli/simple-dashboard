@@ -1,8 +1,8 @@
 import { encrypt } from "@/utils/encryptor";
-import axios from "axios";
+import api from "./api";
 
 export const authenticate = async (email: string, password: string) => {
-  const { data } = await axios.post("http://localhost:8000/admin/login", {
+  const { data } = await api.post("/admin/login", {
     email,
     password: encrypt(password),
   });

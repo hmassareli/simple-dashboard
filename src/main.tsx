@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { CreateProduct } from "./components/CreateProduct/CreateProduct.tsx";
 import Dashboard from "./components/Dashboard/index.tsx";
 import { LoginForm } from "./components/Login/Login.tsx";
 import Products from "./components/Products/index.tsx";
@@ -18,8 +19,28 @@ const router = createBrowserRouter([
     ),
   },
   {
+    path: "/products/:productId",
+    element: (
+      <ProtectedRoute>
+        <h1>Opa </h1>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/products/create",
+    element: (
+      <ProtectedRoute>
+        <CreateProduct />
+      </ProtectedRoute>
+    ),
+  },
+  {
     path: "/products",
-    element: <Products />,
+    element: (
+      <ProtectedRoute>
+        <Products />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/login",

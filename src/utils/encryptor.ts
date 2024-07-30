@@ -2,7 +2,7 @@ import CryptoJS from "crypto-js";
 
 export const encrypt = (data: string): string => {
   if (!import.meta.env.VITE_ENCRYPTED_KEY) {
-    throw new Error("Please provide he encryption key");
+    throw new Error("Please provide the encryption key");
   }
   const ciphertext = CryptoJS.AES.encrypt(
     data,
