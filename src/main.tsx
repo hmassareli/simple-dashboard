@@ -6,6 +6,7 @@ import Dashboard from "./components/Dashboard/index.tsx";
 import { LoginForm } from "./components/Login/Login.tsx";
 import Products from "./components/Products/index.tsx";
 import ProtectedRoute from "./components/ProtectedRoute.tsx";
+import ThemeWrapper from "./components/ThemeWrapper/ThemeWrapper.tsx";
 import { AuthProvider } from "./contexts/AuthContext.tsx";
 import "./index.css";
 
@@ -14,7 +15,9 @@ const router = createBrowserRouter([
     path: "/",
     element: (
       <ProtectedRoute>
-        <Dashboard />
+        <ThemeWrapper>
+          <Dashboard />
+        </ThemeWrapper>
       </ProtectedRoute>
     ),
   },
@@ -30,7 +33,9 @@ const router = createBrowserRouter([
     path: "/products/create",
     element: (
       <ProtectedRoute>
-        <CreateProduct />
+        <ThemeWrapper>
+          <CreateProduct />
+        </ThemeWrapper>
       </ProtectedRoute>
     ),
   },
@@ -38,7 +43,9 @@ const router = createBrowserRouter([
     path: "/products",
     element: (
       <ProtectedRoute>
-        <Products />
+        <ThemeWrapper>
+          <Products />
+        </ThemeWrapper>
       </ProtectedRoute>
     ),
   },

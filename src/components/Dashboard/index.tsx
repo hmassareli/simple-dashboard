@@ -5,7 +5,6 @@ import ProductSold from "../../assets/product_sold_circle.svg?react";
 import TrendDown from "../../assets/trenddown.svg?react";
 import TrendUp from "../../assets/trendup.svg?react";
 import Header from "../Header";
-import SideBar from "../SideBar/SideBar";
 import "./index.css";
 
 const StatsBox = ({
@@ -50,7 +49,6 @@ function Dashboard() {
   return (
     <>
       <div className="dashboard">
-        <SideBar />
         <div className="content">
           <Header title="Dashboard" />
           <div
