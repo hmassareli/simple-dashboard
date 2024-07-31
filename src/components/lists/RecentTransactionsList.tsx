@@ -7,6 +7,65 @@ export default function RecentTransactionsList() {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [sales, setSales] = useState<Sale[]>([]);
 
+  const getBadge = (status: string) => {
+    switch (status) {
+      case 'awaiting_payment':
+        return (
+          <p className="bg-green-100 text-yellow-800 border border-yellow-200 rounded-full px-3 py-1 inline-block">
+            Aguardando pagamento
+          </p>
+        );
+      case 'confirmed':
+        return (
+          <p className="bg-green-100 text-green-800 border border-green-200 rounded-full px-3 py-1 inline-block">
+            Confirmado
+          </p>
+        );
+      case 'shipped':
+        return (
+          <p className="bg-yellow-100 text-yellow-800 border border-yellow-200 rounded-full px-3 py-1 inline-block">
+            Enviado
+          </p>
+        );
+      case 'delivered':
+        return (
+          <p className="bg-red-100 text-green-800 border border-green-200 rounded-full px-3 py-1 inline-block">
+            Entregue
+          </p>
+        );
+      case 'cancelled':
+        return (
+          <p className="bg-blue-100 text-red-800 border border-red-200 rounded-full px-3 py-1 inline-block">
+            Cancelado
+          </p>
+        );
+      case 'completed':
+        return (
+          <p className="bg-blue-100 text-blue-800 border border-blue-200 rounded-full px-3 py-1 inline-block">
+            Completo
+          </p>
+        );
+      default:
+        return (
+          <p className="bg-gray-100 text-gray-800 border border-gray-200 rounded-full px-3 py-1 inline-block">
+            Desconhecido
+          </p>
+        );
+    }
+  };
+  
+
+  const handlePaymentMethod = (pm: number) => {
+    switch (pm) {
+      case 1:
+        return 'PIX';
+      case 2:
+        return 'Cartão de Crédito';
+      default:
+        return "Outro";
+    }
+  };
+
   useEffect(() => {
     const fetchSales = async () => {
       try {
@@ -61,9 +120,9 @@ export default function RecentTransactionsList() {
               <TableRow key={sale.id}>
                 <TableCell className="font-medium">{sale.id}</TableCell>
                 <TableCell>{new Date(sale.sale_date).toLocaleDateString()}</TableCell>
-                <TableCell>{sale.payment_method_id}</TableCell>
+                <TableCell>{handlePaymentMethod(sale.payment_method_id)}</TableCell>
                 <TableCell>R${parseFloat(sale.total_value).toFixed(2)}</TableCell>
-                <TableCell>{sale.status}</TableCell>
+                <TableCell>{getBadge(sale.status)}</TableCell>
               </TableRow>
             ))}
           </TableBody>
