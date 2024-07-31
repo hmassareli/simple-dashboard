@@ -54,7 +54,6 @@ export default function RecentTransactionsList() {
     }
   };
   
-
   const handlePaymentMethod = (pm: number) => {
     switch (pm) {
       case 1:
@@ -70,7 +69,6 @@ export default function RecentTransactionsList() {
     const fetchSales = async () => {
       try {
         const recentSalesData = await getRecentSales();
-        console.log(recentSalesData)
         setSales(recentSalesData);
       } catch (error) {
         console.error('Erro ao buscar getRecentSales:', error);
