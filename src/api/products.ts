@@ -15,6 +15,7 @@ interface ProductCategory {
 }
 
 export interface Product {
+  id: number;
   brand: number;
   description: string;
   discount: string;
@@ -25,12 +26,17 @@ export interface Product {
   product_categories: ProductCategory[];
 }
 
-interface ResponseProducts{
+interface ResponseProducts {
   products: Product[];
   totalPages: number;
 }
 
 export const getProducts = async (page: number, pageSize: number) => {
   const { data } = await api.get<ResponseProducts>(`/admin/list-products?page=${page}&pageSize=${pageSize}`);
+  return data;
+};
+
+export const deleteProduct = async (product_id: number) => {
+  const { data } = await api.delete(`/admin/delete-product`, { data: { product_id } });
   return data;
 };

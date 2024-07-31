@@ -1,4 +1,4 @@
-import { getProducts, Product } from "@/api/products";
+import { deleteProduct, getProducts, Product } from "@/api/products";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -27,8 +27,21 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useEffect, useState } from "react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { useNavigate } from "react-router-dom";
 
 export default function Products() {
+  const navigate = useNavigate()
   const [products, setProducts] = useState<Product[]>([]);
   const [totalPages, setTotalPages] = useState<number>(0);
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -39,6 +52,7 @@ export default function Products() {
     const executeAsync = async () => {
       try {
         const response = await getProducts(currentPage, pageSize);
+        console.log("response", response)
         setProducts(response.products);
         setTotalPages(response.totalPages);
       } catch (error) {
@@ -154,14 +168,31 @@ export default function Products() {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          <Button variant="ghost" size="icon">
+                          <Button onClick={() => navigate(`/products/edit/${product.id}`)} variant="ghost" size="icon">
                             <FilePenIcon className="h-4 w-4" />
                             <span className="sr-only">Edit</span>
                           </Button>
-                          <Button variant="ghost" size="icon">
-                            <TrashIcon className="h-4 w-4" />
-                            <span className="sr-only">Delete</span>
-                          </Button>
+
+                          <AlertDialog>
+                            <AlertDialogTrigger>
+                              <TrashIcon className="h-4 w-4" />
+                              <span className="sr-only">Delete</span>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Deseja realmente excluir o item {product.title}?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Essa ação é irreverssível.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <Button onClick={async () => await deleteProduct(product.id)} variant="destructive">
+                                  Excluir
+                                </Button>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         </div>
                       </TableCell>
                     </TableRow>
