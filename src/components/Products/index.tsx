@@ -80,7 +80,7 @@ export default function Products() {
 
     searchTimeout.current = setTimeout(() => {
       searchProductsWithDebounce(searchTerm);
-    }, 2000); // timer de 1.5 segundos para a pesquisa
+    }, 1.500); // timer de 1.5 segundos para a pesquisa
   }, [searchTerm, pageSize]);
 
   useEffect(() => {
@@ -147,7 +147,7 @@ export default function Products() {
           <Link to={"/"}>
             <Button variant="outline" size="icon" className="h-8 w-8">
               <ChevronLeftIcon className="h-4 w-4" />
-              <span className="sr-only">Back</span>
+              <span className="sr-only">Voltar</span>
             </Button>
           </Link>
           <div className="relative ml-auto flex-1 md:grow-0">
