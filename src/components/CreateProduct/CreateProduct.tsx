@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { ChevronLeft, UploadIcon } from "lucide-react";
 import { ChangeEvent, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
@@ -74,7 +75,7 @@ export function CreateProduct() {
   const {
     register,
     handleSubmit,
-    feat,
+    setValue,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(productSchema),
@@ -93,7 +94,9 @@ export function CreateProduct() {
       setValue("images", [...images, ...uploadedImages]);
     }
   };
-
+  const getNumericValue = (value: string) => {
+    return parseInt(value.replace(/[^0-9]/g, ""));
+  };
   const onSubmit = (data: any) => {
     console.log("Form Data: ", data);
   };
@@ -128,7 +131,7 @@ export function CreateProduct() {
               <div className="flex items-center gap-4">
                 <Link to={"/products"}>
                   <Button variant="outline" size="icon" className="h-7 w-7">
-                    <ChevronLeftIcon className="h-4 w-4" />
+                    <ChevronLeft className="h-4 w-4" />
                     <span className="sr-only">Back</span>
                   </Button>
                 </Link>
@@ -243,7 +246,13 @@ export function CreateProduct() {
                         <div className="grid gap-3">
                           <Label htmlFor="price">Preço</Label>
                           <PriceInput
-                            {...register("price", { valueAsNumber: true })}
+                            onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                              console.log(e.target.value);
+                              setValue(
+                                "price",
+                                getNumericValue(e.target.value)
+                              );
+                            }}
                           />
                           {errors.price && (
                             <span className="text-red-500">
@@ -340,45 +349,5 @@ export function CreateProduct() {
         </main>
       </div>
     </div>
-  );
-}
-
-function ChevronLeftIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="m15 18-6-6 6-6" />
-    </svg>
-  );
-}
-
-function UploadIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-      <polyline points="17 8 12 3 7 8" />
-      <line x1="12" x2="12" y1="3" y2="15" />
-    </svg>
   );
 }
