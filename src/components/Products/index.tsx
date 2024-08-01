@@ -80,7 +80,7 @@ export default function Products() {
 
     searchTimeout.current = setTimeout(() => {
       searchProductsWithDebounce(searchTerm);
-    }, 1.500); // timer de 1.5 segundos para a pesquisa
+    }, 1500); // timer de 1.5 segundos para a pesquisa
   }, [searchTerm, pageSize]);
 
   useEffect(() => {
