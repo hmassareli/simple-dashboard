@@ -1,5 +1,6 @@
+import { randomUUID } from "crypto";
 import { initializeApp } from "firebase/app";
-import { getStorage } from "firebase/storage";
+import { getStorage, ref, uploadBytes } from "firebase/storage";
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -22,3 +23,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 export const imageDb = getStorage(app);
+
+export const uploadImage = async (file: File) => {
+  const storageRef = ref(imageDb, "images/" + randomUUID());
+  await uploadBytes(storageRef, file);
+};
