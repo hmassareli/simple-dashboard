@@ -6,6 +6,9 @@ import TrendDown from "../../assets/trenddown.svg?react";
 import TrendUp from "../../assets/trendup.svg?react";
 import Header from "../Header";
 import "./index.css";
+import SalesChart from "../Charts/SalesCharts";
+import TopSelllingsList from "../lists/TopSellingsList";
+import RecentTransactionsList from "../lists/RecentTransactionsList";
 
 const StatsBox = ({
   type = "number",
@@ -31,9 +34,9 @@ const StatsBox = ({
         {type === "number"
           ? value
           : value?.toLocaleString("pt-BR", {
-              style: "currency",
-              currency: "BRL",
-            })}
+            style: "currency",
+            currency: "BRL",
+          })}
       </p>
       <p className={`percentage_growth ${variance > 0 ? "up" : "down"}`}>
         {variance > 0 ? <TrendUp /> : <TrendDown />}
@@ -78,6 +81,15 @@ function Dashboard() {
               variance={revenueVariance}
               value={100}
             />
+          </div>
+          <div className="flex flex-col md:flex-row gap-4">
+            <SalesChart />
+          </div>
+          <div className="flex flex-col md:flex-row gap-4">
+            <TopSelllingsList />
+          </div>
+          <div className="flex flex-col md:flex-row gap-4">
+            <RecentTransactionsList />
           </div>
         </div>
       </div>
