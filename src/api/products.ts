@@ -36,6 +36,11 @@ export const getProducts = async (page: number, pageSize: number) => {
   return data;
 };
 
+export const searchProducts = async (searchedText: string) => {
+  const { data } = await api.get<ResponseProducts>(`/admin/search-products?text=${searchedText}`);
+  return data;
+};
+
 export const deleteProduct = async (product_id: number) => {
   const { data } = await api.delete(`/admin/delete-product`, { data: { product_id } });
   return data;
