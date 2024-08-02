@@ -39,10 +39,13 @@ export interface Sale {
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
+  users: {
+    name: string;
+  }
 }
 
 export const getSalesGraph = async () => {
-  const { data } = await api.get<GetSalesGraphResponse>("/admin/get-sales-graph");
+  const { data } = await api.get<GetSalesGraphResponse>("/admin/get-status");
   return data;
 };
 
