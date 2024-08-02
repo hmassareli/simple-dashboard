@@ -107,6 +107,7 @@ export default function RecentTransactionsList() {
           <TableHeader>
             <TableRow>
               <TableHead>ID</TableHead>
+              <TableHead>Cliente</TableHead>
               <TableHead>Data da Venda</TableHead>
               <TableHead>Forma de Pagamento</TableHead>
               <TableHead>Valor Total</TableHead>
@@ -117,6 +118,7 @@ export default function RecentTransactionsList() {
             {filteredSales.map((sale) => (
               <TableRow key={sale.id}>
                 <TableCell className="font-medium">{sale.id}</TableCell>
+                <TableCell className="font-medium">{sale.users.name}</TableCell>
                 <TableCell>{new Date(sale.sale_date).toLocaleDateString()}</TableCell>
                 <TableCell>{handlePaymentMethod(sale.payment_method_id)}</TableCell>
                 <TableCell>R${parseFloat(sale.total_value).toFixed(2)}</TableCell>
