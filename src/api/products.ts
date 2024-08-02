@@ -42,6 +42,10 @@ export const searchProducts = async (searchedText: string) => {
 };
 
 export const deleteProduct = async (product_id: number) => {
-  const { data } = await api.delete(`/admin/delete-product`, { data: { product_id } });
+  const { data } = await api.delete(`/admin/delete-product`, {
+    data: {
+      product_id: product_id
+    }
+  });
   return data;
 };
