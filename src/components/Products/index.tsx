@@ -160,7 +160,7 @@ export default function Products() {
               onChange={(e) => setSearchTerm(e.target.value)} // Atualize o estado do termo de pesquisa
             />
           </div>
-          <Button size="sm" className="h-8 gap-1">
+          <Button onClick={() => navigate("/products/create")} size="sm" className="h-8 gap-1">
             <CirclePlusIcon className="h-3.5 w-3.5" />
             <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
               Adicionar produtos
