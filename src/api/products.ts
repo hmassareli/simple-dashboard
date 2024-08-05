@@ -31,6 +31,18 @@ interface ResponseProducts {
   totalPages: number;
 }
 
+export interface CreateProductInterface {
+  title: string;
+  description: string;
+  categories: number[];
+  colors: number[];
+  discount: number;
+  brand: string;
+  price: number;
+  stock_total: number;
+  images: string[];
+}
+
 export const getProducts = async (page: number, pageSize: number) => {
   const { data } = await api.get<ResponseProducts>(`/admin/list-products?page=${page}&pageSize=${pageSize}`);
   return data;
@@ -42,10 +54,13 @@ export const searchProducts = async (searchedText: string) => {
 };
 
 export const deleteProduct = async (product_id: number) => {
-  const { data } = await api.delete(`/admin/delete-product`, {
-    data: {
-      product_id: product_id
-    }
+  const { data } = await api.delete(`/admin/delete-product/${product_id}`);
+  return data;
+};
+
+export const createProduct = async (product: CreateProductInterface) => {
+  const { data } = await api.post(`/admin/create-product`, {
+    ...product
   });
   return data;
 };
