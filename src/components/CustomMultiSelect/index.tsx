@@ -10,10 +10,12 @@ import {
 import { useEffect, useState } from "react";
 
 const CustomMultiSelect = ({
+  disabled = false,
   values = [],
   onValuesChange,
   placeholder,
 }: {
+  disabled: boolean;
   values: { id: number; name: string }[];
   onValuesChange: (id: number[]) => void;
   placeholder: string;
@@ -27,7 +29,7 @@ const CustomMultiSelect = ({
   return (
     <MultiSelector values={value} onValuesChange={setValue}>
       <MultiSelectorTrigger options={values}>
-        <MultiSelectorInput placeholder={placeholder} />
+        <MultiSelectorInput disabled={disabled} placeholder={placeholder} />
       </MultiSelectorTrigger>
       <MultiSelectorContent>
         <MultiSelectorList>

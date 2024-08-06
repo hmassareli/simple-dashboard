@@ -60,7 +60,8 @@ export default function Products() {
     const searchProductsWithDebounce = async (search: string) => {
       try {
         if (search) {
-          const searchResults = await searchProducts(search);
+          const searchResults = await searchProducts(search, 1, pageSize);
+          console.log("search", searchResults)
           setProducts(searchResults.products);
           setTotalPages(searchResults.totalPages);
         } else {
@@ -100,12 +101,6 @@ export default function Products() {
   useEffect(() => {
     handleSearch();
   }, [searchTerm, handleSearch]);
-
-  const filteredProducts = products.filter(
-    (product) =>
-      product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.description.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   const getPaginationPages = () => {
     const pages = [];
@@ -194,7 +189,7 @@ export default function Products() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredProducts.map((product, index) => (
+                  {products.map((product, index) => (
                     <TableRow key={index}>
                       <TableCell className="hidden sm:table-cell">
                         <img
@@ -262,9 +257,9 @@ export default function Products() {
                 Mostrando{" "}
                 <strong>
                   {(currentPage - 1) * pageSize + 1}-
-                  {Math.min(currentPage * pageSize, filteredProducts.length)}
+                  {Math.min(currentPage * pageSize, products.length)}
                 </strong>{" "}
-                de <strong>{filteredProducts.length}</strong> produtos
+                de <strong>{products.length}</strong> produtos
               </div>
               <Pagination>
                 <PaginationContent>

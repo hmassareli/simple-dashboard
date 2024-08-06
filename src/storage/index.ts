@@ -1,6 +1,6 @@
-import { v4 as uuidv4 } from 'uuid';
 import { initializeApp } from "firebase/app";
-import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
+import { getDownloadURL, getStorage, ref, uploadBytesResumable } from "firebase/storage";
+import { v4 as uuidv4 } from 'uuid';
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -25,7 +25,8 @@ const app = initializeApp(firebaseConfig);
 export const imageDb = getStorage(app);
 
 export const uploadImage = async (file: File) => {
-  const storageRef = ref(imageDb, "images/" + uuidv4() + '.' + file.name.split('.')[1]);
-  await uploadBytes(storageRef, file);
+  const filePath = "images/" + uuidv4() + '.' + file.name.split('.')[1]
+  const storageRef = ref(imageDb, filePath);
+  await uploadBytesResumable(storageRef, file);
   return getDownloadURL(storageRef);
 };

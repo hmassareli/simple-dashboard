@@ -48,8 +48,8 @@ export const getProducts = async (page: number, pageSize: number) => {
   return data;
 };
 
-export const searchProducts = async (searchedText: string) => {
-  const { data } = await api.get<ResponseProducts>(`/admin/search-products?text=${searchedText}`);
+export const searchProducts = async (searchedText: string, page: number, pageSize: number) => {
+  const { data } = await api.get<ResponseProducts>(`/admin/list-products?page=${page}&pageSize=${pageSize}`, { search: searchedText });
   return data;
 };
 
