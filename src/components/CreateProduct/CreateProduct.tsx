@@ -1,3 +1,9 @@
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ChangeEvent, useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { Link, useNavigate } from "react-router-dom";
+import { z } from "zod";
+import { uploadImage } from "@/storage";
 import api from "@/api/api";
 import { createProduct, CreateProductInterface } from "@/api/products";
 import {
@@ -26,18 +32,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { uploadImage } from "@/storage";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { ChevronLeft, LoaderCircle, UploadIcon } from "lucide-react";
-import { ChangeEvent, useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
-import { z } from "zod";
 import CustomMultiSelect from "../CustomMultiSelect";
 import DiscountInput from "../DiscountInput";
 import PriceInput from "../PriceInput";
+import { ChevronLeft, LoaderCircle, UploadIcon } from "lucide-react";
 
-// Define Zod schema
 const productSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório"),
   description: z.string().min(1, "Descrição é obrigatória"),
@@ -50,23 +49,19 @@ const productSchema = z.object({
   discount: z.number().positive("Desconto deve ser positivo"),
   stock: z.number().min(1, "Quantidade deve ser pelo menos 1"),
   images: z
-    .array(z.object({ name: z.string(), preview: z.string() }))
+    .array(z.instanceof(File))
     .nonempty("Adicione pelo menos uma imagem"),
 });
 
 export function CreateProduct() {
   const navigate = useNavigate();
-
   const [isLoading, setIsLoading] = useState(false);
 
-  const [categories, setCategories] = useState<{ id: number; name: string }[]>(
-    []
-  );
+  const [categories, setCategories] = useState<{ id: number; name: string }[]>([]);
   const [brands, setBrands] = useState<{ id: number; name: string }[]>([]);
-  const [colors, setColors] = useState<
-    { id: number; hexa_code: string; color_name: string }[]
-  >([]);
-  const [images, setImages] = useState<{ name: string; preview: string }[]>([]);
+  const [colors, setColors] = useState<{ id: number; hexa_code: string; color_name: string }[]>([]);
+  const [images, setImages] = useState<File[]>([]);
+  const [previewImages, setPreviewImages] = useState<{ name: string; preview: string }[]>([]);
 
   useEffect(() => {
     api.get("admin/list-categories").then((res) => {
@@ -92,14 +87,17 @@ export function CreateProduct() {
   const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files) {
+      const fileArray = Array.from(files);
+
       const uploadedImages = Array.from(files).map((file) => {
         return {
           name: file.name,
           preview: URL.createObjectURL(file),
         };
       });
-      setImages((prevImages) => [...prevImages, ...uploadedImages]);
-      setValue("images", [...images, ...uploadedImages]);
+      setPreviewImages((prevImages) => [...prevImages, ...uploadedImages]);
+      setImages(fileArray);
+      setValue("images", fileArray);
     }
   };
 
@@ -110,13 +108,14 @@ export function CreateProduct() {
   const onSubmit = async (data: any) => {
     try {
       setIsLoading(true)
-      let uploadedLinksArray = []
 
-      for (const image of data.images) {
-        const response = await uploadImage(image)
-        uploadedLinksArray.push(response)
-      }
-
+      const uploadedLinksArray = await Promise.all(
+        data.images.map(async (file: File) => {
+          const response = await uploadImage(file);
+          return response;
+        })
+      );
+      
       const createdProduct: CreateProductInterface = {
         price: data.price,
         title: data.name,
@@ -128,8 +127,6 @@ export function CreateProduct() {
         images: uploadedLinksArray,
         colors: data.selectedColors,
       }
-
-      console.log("createdProduct", createdProduct)
 
       const response = await createProduct(createdProduct);
       if (response) {
@@ -367,7 +364,7 @@ export function CreateProduct() {
                     <CardContent>
                       <div className="grid gap-2">
                         <div className="grid grid-cols-2 gap-2">
-                          {images.map((image, index) => (
+                          {previewImages.map((image, index) => (
                             <img
                               key={index}
                               src={image.preview}
