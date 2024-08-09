@@ -80,6 +80,7 @@ export function CreateProduct() {
     handleSubmit,
     setValue,
     formState: { errors },
+    watch
   } = useForm({
     resolver: zodResolver(productSchema),
   });
@@ -236,7 +237,8 @@ export function CreateProduct() {
                           <CustomMultiSelect
                             disabled={isLoading}
                             placeholder="Selecione as Categorias"
-                            values={categories}
+                            values={watch("selectedCategories")}
+                            list={categories}
                             onValuesChange={(values) =>
                               setValue("selectedCategories", values)
                             }
@@ -252,7 +254,8 @@ export function CreateProduct() {
                           <CustomMultiSelect
                             disabled={isLoading}
                             placeholder="Selecione as Cores"
-                            values={colors.map((color) => ({
+                            values={watch("selectedColors")}
+                            list={colors.map((color) => ({
                               id: color.id,
                               name: color.color_name,
                             }))}
@@ -270,6 +273,7 @@ export function CreateProduct() {
                           <Label htmlFor="brand">Marca</Label>
                           <Select
                             disabled={isLoading}
+                            value={String(watch("brand"))}
                             onValueChange={(value) => setValue("brand", Number(value))}
                           >
                             <SelectTrigger
