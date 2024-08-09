@@ -104,14 +104,14 @@ export function EditProduct() {
     const executeAsync = async () => {
       try {
         const product = await getProductById(Number(product_id))
-        
+
         reset({
           name: product.title,
           description: product.description,
-          selectedCategories: product.product_categories.map(category => ({ id: category.id, name: category.name })),
+          selectedCategories: product.product_categories.map(category => (category.id)),
           selectedColors: [],
           brand: product.brand,
-          price: Number(product.price),
+          price: product.price,
           discount: Number(product.discount),
           stock: Number(product.stock_total),
           images: []
@@ -147,7 +147,10 @@ export function EditProduct() {
   };
 
   const getNumericValue = (value: string) => {
-    return parseInt(value.replace(/[^0-9]/g, ""));
+    value = value.replace(/\D/g, "");
+    value = value.replace(/(\d)(\d{2})$/, "$1,$2");
+    value = value.replace(/(?=(\d{3})+(\D))\B/g, ".");
+    return value;
   };
 
   const onSubmit = async (data: any) => {
@@ -278,10 +281,11 @@ export function EditProduct() {
                           <CustomMultiSelect
                             disabled={isLoading}
                             placeholder="Selecione as Categorias"
-                            values={categories}
-                            onValuesChange={(values) =>
+                            values={watch("selectedCategories")}
+                            list={categories}
+                            onValuesChange={(values) => {
                               setValue("selectedCategories", values)
-                            }
+                            }}
                           />
                           {errors.selectedCategories && (
                             <span className="text-red-500">
@@ -294,7 +298,8 @@ export function EditProduct() {
                           <CustomMultiSelect
                             disabled={isLoading}
                             placeholder="Selecione as Cores"
-                            values={colors.map((color) => ({
+                            values={watch("selectedColors")}
+                            list={colors.map((color) => ({
                               id: color.id,
                               name: color.color_name,
                             }))}
@@ -312,7 +317,7 @@ export function EditProduct() {
                           <Label htmlFor="brand">Marca</Label>
                           <Select
                             disabled={isLoading}
-                            value={watch("brand")}
+                            value={String(watch("brand"))}
                             onValueChange={(value) => setValue("brand", Number(value))}
                           >
                             <SelectTrigger
@@ -341,7 +346,7 @@ export function EditProduct() {
                             disabled={isLoading}
                             value={watch("price")}
                             onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                              setValue("price", parseFloat(e.target.value));
+                              setValue("price", getNumericValue(e.target.value));
                             }}
                           />
                           {errors.price && (
@@ -356,7 +361,7 @@ export function EditProduct() {
                             disabled={isLoading}
                             value={watch("discount")}
                             onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                              setValue("discount", parseFloat(e.target.value));
+                              setValue("discount", e.target.value.replace(/\D/g, ""));
                             }}
                           />
                           {errors.discount && (

@@ -45,7 +45,7 @@ const productSchema = z.object({
     .nonempty("Selecione pelo menos uma categoria"),
   selectedColors: z.array(z.number()).nonempty("Selecione pelo menos uma cor"),
   brand: z.number().min(1, "Marca é obrigatória"),
-  price: z.number().positive("Preço deve ser positivo"),
+  price: z.string().min(1, "Preço é obrigatório"),
   discount: z.number().positive("Desconto deve ser positivo"),
   stock: z.number().min(1, "Quantidade deve ser pelo menos 1"),
   images: z
@@ -102,7 +102,10 @@ export function CreateProduct() {
   };
 
   const getNumericValue = (value: string) => {
-    return parseInt(value.replace(/[^0-9]/g, ""));
+    value = value.replace(/\D/g, "");
+    value = value.replace(/(\d)(\d{2})$/, "$1,$2");
+    value = value.replace(/(?=(\d{3})+(\D))\B/g, ".");
+    return value;
   };
 
   const onSubmit = async (data: any) => {
@@ -115,9 +118,9 @@ export function CreateProduct() {
           return response;
         })
       );
-      
+
       const createdProduct: CreateProductInterface = {
-        price: data.price,
+        price: parseFloat(data.price.replaceAll(".", "").replace(",", ".")),
         title: data.name,
         description: data.description,
         discount: data.discount,
@@ -313,7 +316,7 @@ export function CreateProduct() {
                             onChange={(e: ChangeEvent<HTMLInputElement>) => {
                               setValue(
                                 "discount",
-                                getNumericValue(e.target.value)
+                                Number(e.target.value.replace(/\D/g, ""))
                               );
                             }}
                           />

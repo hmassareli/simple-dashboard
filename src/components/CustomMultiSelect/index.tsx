@@ -12,28 +12,33 @@ import { useEffect, useState } from "react";
 const CustomMultiSelect = ({
   disabled = false,
   values = [],
+  list = [],
   onValuesChange,
   placeholder,
 }: {
   disabled: boolean;
-  values: { id: number; name: string }[];
+  values: number[];
+  list: { id: number; name: string }[];
   onValuesChange: (id: number[]) => void;
   placeholder: string;
 }) => {
-  const [value, setValue] = useState<string[]>([]);
+  const [localValue, setLocalValue] = useState<string[]>([]);
 
   useEffect(() => {
-    onValuesChange(value.map((item) => parseInt(item)));
-  }, [value]);
+    setLocalValue(values.map((item) => String(item)));
+  }, [values]);
 
   return (
-    <MultiSelector values={value} onValuesChange={setValue}>
-      <MultiSelectorTrigger options={values}>
+    <MultiSelector values={localValue} onValuesChange={(string_array) => {
+      onValuesChange(string_array.map(item => Number(item)))
+      setLocalValue(string_array)
+    }}>
+      <MultiSelectorTrigger options={list.map(item => ({ id: item.id, name: item.name }))}>
         <MultiSelectorInput disabled={disabled} placeholder={placeholder} />
       </MultiSelectorTrigger>
       <MultiSelectorContent>
         <MultiSelectorList>
-          {values.map((item) => (
+          {list.map((item) => (
             <MultiSelectorItem key={item.id} value={item.id.toString()}>
               {item.name}
             </MultiSelectorItem>
