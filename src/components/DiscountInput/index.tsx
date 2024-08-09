@@ -1,7 +1,7 @@
 import { forwardRef } from "react";
 import { NumericFormat, NumericFormatProps } from "react-number-format";
 
-const DiscountInput = forwardRef<NumericFormatProps, { disabled:boolean, onChange: any }>(
+const DiscountInput = forwardRef<NumericFormatProps, { value: any, disabled: boolean, onChange: any }>(
   (props, ref) => {
     return (
       <NumericFormat
