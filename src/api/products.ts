@@ -44,12 +44,12 @@ export interface CreateProductInterface {
 }
 
 export const getProducts = async (page: number, pageSize: number) => {
-  const { data } = await api.get<ResponseProducts>(`/admin/list-products?page=${page}&pageSize=${pageSize}`);
+  const { data } = await api.post<ResponseProducts>(`/admin/list-products?page=${page}&pageSize=${pageSize}`);
   return data;
 };
 
 export const searchProducts = async (searchedText: string, page: number, pageSize: number) => {
-  const { data } = await api.get<ResponseProducts>(`/admin/list-products?page=${page}&pageSize=${pageSize}`, { search: searchedText });
+  const { data } = await api.post<ResponseProducts>(`/admin/list-products?page=${page}&pageSize=${pageSize}`, { search: searchedText });
   return data;
 };
 
@@ -62,5 +62,10 @@ export const createProduct = async (product: CreateProductInterface) => {
   const { data } = await api.post(`/admin/create-product`, {
     ...product
   });
+  return data;
+};
+
+export const getProductById = async (product_id: number) => {
+  const { data } = await api.get<Product>(`/admin/get-product/${product_id}`);
   return data;
 };
