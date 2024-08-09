@@ -29,6 +29,7 @@ import {
 import { useEffect, useState, useRef, useCallback } from "react";
 import {
   AlertDialog,
+  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -61,7 +62,6 @@ export default function Products() {
       try {
         if (search) {
           const searchResults = await searchProducts(search, 1, pageSize);
-          console.log("search", searchResults)
           setProducts(searchResults.products);
           setTotalPages(searchResults.totalPages);
         } else {
@@ -239,9 +239,18 @@ export default function Products() {
                               </AlertDialogHeader>
                               <AlertDialogFooter>
                                 <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                <Button onClick={async () => await deleteProduct(product.id)} variant="destructive">
-                                  Excluir
-                                </Button>
+                                <AlertDialogAction asChild>
+                                  <Button type="button" onClick={async () => {
+                                    
+                                    await deleteProduct(product.id)
+                                    const response = await getProducts(currentPage, pageSize);
+                                    setProducts(response.products);
+                                    setTotalPages(response.totalPages);
+
+                                  }} variant="destructive">
+                                    Excluir
+                                  </Button>
+                                </AlertDialogAction>
                               </AlertDialogFooter>
                             </AlertDialogContent>
                           </AlertDialog>
