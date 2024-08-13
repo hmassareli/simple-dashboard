@@ -9,6 +9,7 @@ import ProtectedRoute from "./components/ProtectedRoute.tsx";
 import ThemeWrapper from "./components/ThemeWrapper/ThemeWrapper.tsx";
 import { AuthProvider } from "./contexts/AuthContext.tsx";
 import "./index.css";
+import { EditProduct } from "./components/EditProduct/EditProduct.tsx";
 
 const router = createBrowserRouter([
   {
@@ -35,6 +36,16 @@ const router = createBrowserRouter([
       <ProtectedRoute>
         <ThemeWrapper>
           <CreateProduct />
+        </ThemeWrapper>
+      </ProtectedRoute>
+    ),
+  }, 
+  {
+    path: "/products/edit/:id",
+    element: (
+      <ProtectedRoute>
+        <ThemeWrapper>
+          <EditProduct />
         </ThemeWrapper>
       </ProtectedRoute>
     ),

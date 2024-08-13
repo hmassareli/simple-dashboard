@@ -1,11 +1,5 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { ChangeEvent, useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
-import { z } from "zod";
-import { uploadImage } from "@/storage";
 import api from "@/api/api";
-import { createProduct, CreateProductInterface } from "@/api/products";
+import { createProductImageById, CreateProductInterface, deleteProductImageById, getProductById, Product, updateProductById } from "@/api/products";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -32,10 +26,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { uploadImage } from "@/storage";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ChevronLeft, LoaderCircle, TrashIcon, UploadIcon } from "lucide-react";
+import { ChangeEvent, useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { z } from "zod";
 import CustomMultiSelect from "../CustomMultiSelect";
 import DiscountInput from "../DiscountInput";
 import PriceInput from "../PriceInput";
-import { ChevronLeft, LoaderCircle, UploadIcon } from "lucide-react";
 
 const productSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório"),
@@ -45,23 +45,36 @@ const productSchema = z.object({
     .nonempty("Selecione pelo menos uma categoria"),
   selectedColors: z.array(z.number()).nonempty("Selecione pelo menos uma cor"),
   brand: z.number().min(1, "Marca é obrigatória"),
-  price: z.string().min(1, "Preço é obrigatório"),
+  price: z.string().min(1, "Preço deve ser positivo"),
   discount: z.number().positive("Desconto deve ser positivo"),
   stock: z.number().min(1, "Quantidade deve ser pelo menos 1"),
   images: z
-    .array(z.instanceof(File))
-    .nonempty("Adicione pelo menos uma imagem"),
+    .array(z.instanceof(File)),
 });
 
-export function CreateProduct() {
+export function EditProduct() {
   const navigate = useNavigate();
+  const { id: product_id } = useParams();
+
+  if (!product_id) {
+    navigate("/products")
+    return
+  }
+
+  const [selectedProduct, setSelectedProduct] = useState<Product>();
+
   const [isLoading, setIsLoading] = useState(false);
 
-  const [categories, setCategories] = useState<{ id: number; name: string }[]>([]);
+  const [categories, setCategories] = useState<{ id: number; name: string }[]>(
+    []
+  );
   const [brands, setBrands] = useState<{ id: number; name: string }[]>([]);
-  const [colors, setColors] = useState<{ id: number; hexa_code: string; color_name: string }[]>([]);
+  const [colors, setColors] = useState<
+    { id: number; hexa_code: string; color_name: string }[]
+  >([]);
   const [images, setImages] = useState<File[]>([]);
   const [previewImages, setPreviewImages] = useState<{ name: string; preview: string }[]>([]);
+  const [currentImages, setCurrentImages] = useState<{ name: string; preview: string }[]>([]);
 
   useEffect(() => {
     api.get("admin/list-categories").then((res) => {
@@ -73,6 +86,9 @@ export function CreateProduct() {
     api.get("admin/get-colors").then((res) => {
       setColors(res.data);
     });
+    api.get("admin/get-colors").then((res) => {
+      setColors(res.data);
+    });
   }, []);
 
   const {
@@ -80,16 +96,49 @@ export function CreateProduct() {
     handleSubmit,
     setValue,
     formState: { errors },
+    reset,
     watch
   } = useForm({
     resolver: zodResolver(productSchema),
   });
 
+  useEffect(() => {
+    const executeAsync = async () => {
+      try {
+        const product = await getProductById(Number(product_id))
+
+        setSelectedProduct(product)
+
+        reset({
+          name: product.title,
+          description: product.description,
+          selectedCategories: product.product_categories.map(category => (category.id)),
+          selectedColors: product.product_colors.map(color => (color.color_id)),
+          brand: product.brand,
+          price: product.price,
+          discount: Number(product.discount),
+          stock: Number(product.stock_total),
+          images: []
+        });
+
+        const imagePreviews = product.product_image.map(image => ({
+          name: String(image.id),
+          preview: image.url
+        }));
+        setPreviewImages(imagePreviews);
+        setCurrentImages(imagePreviews)
+
+      } catch (error) {
+        console.error("Error fetching product:", error);
+      }
+    }
+    executeAsync()
+  }, [product_id])
+
   const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files) {
       const fileArray = Array.from(files);
-
       const uploadedImages = Array.from(files).map((file) => {
         return {
           name: file.name,
@@ -102,6 +151,24 @@ export function CreateProduct() {
     }
   };
 
+  useEffect(() => console.log("Teste", previewImages), [previewImages])
+
+  const handleImageRemove = (image: { name: string; preview: string }) => {
+    setPreviewImages((prevPreviewImages) => {
+      const updatedPreviewImages = prevPreviewImages.filter((img) => img.name !== image.name);
+      return updatedPreviewImages;
+    });
+
+    setImages((prevImages) => {
+      const updatedImages = prevImages.filter((img) => img.name !== image.name);
+      setValue("images", updatedImages);
+      return updatedImages;
+    });
+
+    setCurrentImages((prevCurrentImages) => prevCurrentImages.filter((img) => img.name !== image.name));
+  };
+
+
   const getNumericValue = (value: string) => {
     value = value.replace(/\D/g, "");
     value = value.replace(/(\d)(\d{2})$/, "$1,$2");
@@ -113,31 +180,46 @@ export function CreateProduct() {
     try {
       setIsLoading(true)
 
+      const removedImages = selectedProduct?.product_image
+        .filter(image =>
+          !currentImages.some(cimage => cimage.name === String(image.id))
+        );
+
+      if (removedImages) {
+        for (const image of removedImages) {
+          await deleteProductImageById(image.id)
+        }
+      }
+
       const uploadedLinksArray = await Promise.all(
         data.images.map(async (file: File) => {
           const response = await uploadImage(file);
+          console.log("response", response)
           return response;
         })
       );
 
-      const createdProduct: CreateProductInterface = {
-        price: parseFloat(data.price.replaceAll(".", "").replace(",", ".")),
+      for (const item of uploadedLinksArray) {
+        const response = await createProductImageById(selectedProduct?.id, item)
+      }
+
+      const updatedProduct: CreateProductInterface = {
+        price: data.price,
         title: data.name,
         description: data.description,
         discount: data.discount,
         stock_total: data.stock,
         brand: data.brand,
         categories: data.selectedCategories,
-        images: uploadedLinksArray,
         colors: data.selectedColors,
       }
 
-      const response = await createProduct(createdProduct);
+      const response = await updateProductById(selectedProduct?.id, updatedProduct);
       if (response) {
         navigate("/products")
       }
     } catch (error) {
-      console.log("CreateProduct Error", error)
+      console.log("UpdateProduct Error", error)
     } finally {
       setIsLoading(false)
     }
@@ -162,7 +244,7 @@ export function CreateProduct() {
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
-                <BreadcrumbPage>Criar produto</BreadcrumbPage>
+                <BreadcrumbPage>Editar produto</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
@@ -198,7 +280,7 @@ export function CreateProduct() {
                     <CardHeader>
                       <CardTitle>Detalhes do produto</CardTitle>
                       <CardDescription>
-                        Preencha os campos abaixo para criar um novo produto
+                        Preencha os campos abaixo para atualizar um produto
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -239,9 +321,9 @@ export function CreateProduct() {
                             placeholder="Selecione as Categorias"
                             values={watch("selectedCategories")}
                             list={categories}
-                            onValuesChange={(values) =>
+                            onValuesChange={(values) => {
                               setValue("selectedCategories", values)
-                            }
+                            }}
                           />
                           {errors.selectedCategories && (
                             <span className="text-red-500">
@@ -300,11 +382,9 @@ export function CreateProduct() {
                           <Label htmlFor="price">Preço</Label>
                           <PriceInput
                             disabled={isLoading}
+                            value={watch("price")}
                             onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                              setValue(
-                                "price",
-                                getNumericValue(e.target.value)
-                              );
+                              setValue("price", getNumericValue(e.target.value));
                             }}
                           />
                           {errors.price && (
@@ -317,11 +397,9 @@ export function CreateProduct() {
                           <Label htmlFor="price">Desconto</Label>
                           <DiscountInput
                             disabled={isLoading}
+                            value={watch("discount")}
                             onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                              setValue(
-                                "discount",
-                                Number(e.target.value.replace(/\D/g, ""))
-                              );
+                              setValue("discount", e.target.value.replace(/\D/g, ""));
                             }}
                           />
                           {errors.discount && (
@@ -365,19 +443,23 @@ export function CreateProduct() {
                     <CardHeader>
                       <CardTitle>Imagens do produto</CardTitle>
                       <CardDescription>
-                        Lipsum dolor sit amet, consectetur adipiscing elit
+                        Adicione ou remova imagens deste produto
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
                       <div className="grid gap-2">
                         <div className="grid grid-cols-2 gap-2">
                           {previewImages.map((image, index) => (
-                            <img
-                              key={index}
-                              src={image.preview}
-                              alt={`Product Preview ${index + 1}`}
-                              className="aspect-square w-full object-cover rounded-md"
-                            />
+                            <div key={index} className="relative w-fit h-fit">
+                              <img
+                                src={image.preview}
+                                alt={`Product Preview ${index + 1}`}
+                                className="aspect-square w-full object-cover rounded-md"
+                              />
+                              <button type="button" onClick={() => handleImageRemove(image)} className="absolute top-1 right-1 bg-gray-100 hover:bg-gray-200/30 p-1 rounded-full transition-all">
+                                <TrashIcon className="w-4 h-4 text-red-600" />
+                              </button>
+                            </div>
                           ))}
                           <label
                             htmlFor="file-upload"

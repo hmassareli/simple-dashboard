@@ -29,6 +29,7 @@ import {
 import { useEffect, useState, useRef, useCallback } from "react";
 import {
   AlertDialog,
+  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -60,7 +61,7 @@ export default function Products() {
     const searchProductsWithDebounce = async (search: string) => {
       try {
         if (search) {
-          const searchResults = await searchProducts(search);
+          const searchResults = await searchProducts(search, 1, pageSize);
           setProducts(searchResults.products);
           setTotalPages(searchResults.totalPages);
         } else {
@@ -100,12 +101,6 @@ export default function Products() {
   useEffect(() => {
     handleSearch();
   }, [searchTerm, handleSearch]);
-
-  const filteredProducts = products.filter(
-    (product) =>
-      product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.description.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   const getPaginationPages = () => {
     const pages = [];
@@ -160,7 +155,7 @@ export default function Products() {
               onChange={(e) => setSearchTerm(e.target.value)} // Atualize o estado do termo de pesquisa
             />
           </div>
-          <Button size="sm" className="h-8 gap-1">
+          <Button onClick={() => navigate("/products/create")} size="sm" className="h-8 gap-1">
             <CirclePlusIcon className="h-3.5 w-3.5" />
             <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
               Adicionar produtos
@@ -194,7 +189,7 @@ export default function Products() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredProducts.map((product, index) => (
+                  {products.map((product, index) => (
                     <TableRow key={index}>
                       <TableCell className="hidden sm:table-cell">
                         <img
@@ -244,9 +239,18 @@ export default function Products() {
                               </AlertDialogHeader>
                               <AlertDialogFooter>
                                 <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                <Button onClick={async () => await deleteProduct(product.id)} variant="destructive">
-                                  Excluir
-                                </Button>
+                                <AlertDialogAction asChild>
+                                  <Button type="button" onClick={async () => {
+                                    
+                                    await deleteProduct(product.id)
+                                    const response = await getProducts(currentPage, pageSize);
+                                    setProducts(response.products);
+                                    setTotalPages(response.totalPages);
+
+                                  }} variant="destructive">
+                                    Excluir
+                                  </Button>
+                                </AlertDialogAction>
                               </AlertDialogFooter>
                             </AlertDialogContent>
                           </AlertDialog>
@@ -262,9 +266,9 @@ export default function Products() {
                 Mostrando{" "}
                 <strong>
                   {(currentPage - 1) * pageSize + 1}-
-                  {Math.min(currentPage * pageSize, filteredProducts.length)}
+                  {Math.min(currentPage * pageSize, products.length)}
                 </strong>{" "}
-                de <strong>{filteredProducts.length}</strong> produtos
+                de <strong>{products.length}</strong> produtos
               </div>
               <Pagination>
                 <PaginationContent>

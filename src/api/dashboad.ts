@@ -58,3 +58,8 @@ export const getRecentSales = async () => {
   const { data } = await api.get("/admin/get-recent-sales");
   return data;
 };
+
+export const getTotalUsers = async () => {
+  const { data } = await api.get("/admin/get-total-users");
+  return data;
+};
