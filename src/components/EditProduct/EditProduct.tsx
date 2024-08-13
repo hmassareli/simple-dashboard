@@ -1,5 +1,5 @@
 import api from "@/api/api";
-import { createProduct, CreateProductInterface, getProductById } from "@/api/products";
+import { createProductImageById, CreateProductInterface, deleteProductImageById, getProductById, Product, updateProductById } from "@/api/products";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -28,7 +28,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { uploadImage } from "@/storage";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ChevronLeft, LoaderCircle, UploadIcon } from "lucide-react";
+import { ChevronLeft, LoaderCircle, TrashIcon, UploadIcon } from "lucide-react";
 import { ChangeEvent, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -45,12 +45,11 @@ const productSchema = z.object({
     .nonempty("Selecione pelo menos uma categoria"),
   selectedColors: z.array(z.number()).nonempty("Selecione pelo menos uma cor"),
   brand: z.number().min(1, "Marca é obrigatória"),
-  price: z.number().positive("Preço deve ser positivo"),
+  price: z.string().min(1, "Preço deve ser positivo"),
   discount: z.number().positive("Desconto deve ser positivo"),
   stock: z.number().min(1, "Quantidade deve ser pelo menos 1"),
   images: z
-    .array(z.instanceof(File))
-    .nonempty("Adicione pelo menos uma imagem"),
+    .array(z.instanceof(File)),
 });
 
 export function EditProduct() {
@@ -61,6 +60,8 @@ export function EditProduct() {
     navigate("/products")
     return
   }
+
+  const [selectedProduct, setSelectedProduct] = useState<Product>();
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -73,6 +74,7 @@ export function EditProduct() {
   >([]);
   const [images, setImages] = useState<File[]>([]);
   const [previewImages, setPreviewImages] = useState<{ name: string; preview: string }[]>([]);
+  const [currentImages, setCurrentImages] = useState<{ name: string; preview: string }[]>([]);
 
   useEffect(() => {
     api.get("admin/list-categories").then((res) => {
@@ -105,11 +107,13 @@ export function EditProduct() {
       try {
         const product = await getProductById(Number(product_id))
 
+        setSelectedProduct(product)
+
         reset({
           name: product.title,
           description: product.description,
           selectedCategories: product.product_categories.map(category => (category.id)),
-          selectedColors: [],
+          selectedColors: product.product_colors.map(color => (color.color_id)),
           brand: product.brand,
           price: product.price,
           discount: Number(product.discount),
@@ -118,10 +122,11 @@ export function EditProduct() {
         });
 
         const imagePreviews = product.product_image.map(image => ({
-          name: String(image.product_id),
+          name: String(image.id),
           preview: image.url
         }));
         setPreviewImages(imagePreviews);
+        setCurrentImages(imagePreviews)
 
       } catch (error) {
         console.error("Error fetching product:", error);
@@ -146,6 +151,24 @@ export function EditProduct() {
     }
   };
 
+  useEffect(() => console.log("Teste", previewImages), [previewImages])
+
+  const handleImageRemove = (image: { name: string; preview: string }) => {
+    setPreviewImages((prevPreviewImages) => {
+      const updatedPreviewImages = prevPreviewImages.filter((img) => img.name !== image.name);
+      return updatedPreviewImages;
+    });
+
+    setImages((prevImages) => {
+      const updatedImages = prevImages.filter((img) => img.name !== image.name);
+      setValue("images", updatedImages);
+      return updatedImages;
+    });
+
+    setCurrentImages((prevCurrentImages) => prevCurrentImages.filter((img) => img.name !== image.name));
+  };
+
+
   const getNumericValue = (value: string) => {
     value = value.replace(/\D/g, "");
     value = value.replace(/(\d)(\d{2})$/, "$1,$2");
@@ -157,12 +180,28 @@ export function EditProduct() {
     try {
       setIsLoading(true)
 
+      const removedImages = selectedProduct?.product_image
+        .filter(image =>
+          !currentImages.some(cimage => cimage.name === String(image.id))
+        );
+
+      if (removedImages) {
+        for (const image of removedImages) {
+          await deleteProductImageById(image.id)
+        }
+      }
+
       const uploadedLinksArray = await Promise.all(
         data.images.map(async (file: File) => {
           const response = await uploadImage(file);
+          console.log("response", response)
           return response;
         })
       );
+
+      for (const item of uploadedLinksArray) {
+        const response = await createProductImageById(selectedProduct?.id, item)
+      }
 
       const updatedProduct: CreateProductInterface = {
         price: data.price,
@@ -172,16 +211,15 @@ export function EditProduct() {
         stock_total: data.stock,
         brand: data.brand,
         categories: data.selectedCategories,
-        images: uploadedLinksArray,
         colors: data.selectedColors,
       }
 
-      const response = await createProduct(updatedProduct);
+      const response = await updateProductById(selectedProduct?.id, updatedProduct);
       if (response) {
         navigate("/products")
       }
     } catch (error) {
-      console.log("CreateProduct Error", error)
+      console.log("UpdateProduct Error", error)
     } finally {
       setIsLoading(false)
     }
@@ -405,19 +443,23 @@ export function EditProduct() {
                     <CardHeader>
                       <CardTitle>Imagens do produto</CardTitle>
                       <CardDescription>
-                        Lipsum dolor sit amet, consectetur adipiscing elit
+                        Adicione ou remova imagens deste produto
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
                       <div className="grid gap-2">
                         <div className="grid grid-cols-2 gap-2">
                           {previewImages.map((image, index) => (
-                            <img
-                              key={index}
-                              src={image.preview}
-                              alt={`Product Preview ${index + 1}`}
-                              className="aspect-square w-full object-cover rounded-md"
-                            />
+                            <div key={index} className="relative w-fit h-fit">
+                              <img
+                                src={image.preview}
+                                alt={`Product Preview ${index + 1}`}
+                                className="aspect-square w-full object-cover rounded-md"
+                              />
+                              <button type="button" onClick={() => handleImageRemove(image)} className="absolute top-1 right-1 bg-gray-100 hover:bg-gray-200/30 p-1 rounded-full transition-all">
+                                <TrashIcon className="w-4 h-4 text-red-600" />
+                              </button>
+                            </div>
                           ))}
                           <label
                             htmlFor="file-upload"
