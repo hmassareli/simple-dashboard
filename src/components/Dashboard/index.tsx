@@ -1,14 +1,15 @@
-import { useState } from "react";
+import { getRecentSales, getTopSelling, getTotalUsers } from "@/api/dashboad";
+import { useEffect, useState } from "react";
 import CustomerCircle from "../../assets/customer_circle.svg?react";
 import ImgMoney from "../../assets/money_circle.svg?react";
 import ProductSold from "../../assets/product_sold_circle.svg?react";
 import TrendDown from "../../assets/trenddown.svg?react";
 import TrendUp from "../../assets/trendup.svg?react";
-import Header from "../Header";
-import "./index.css";
 import SalesChart from "../Charts/SalesCharts";
-import TopSelllingsList from "../lists/TopSellingsList";
+import Header from "../Header";
 import RecentTransactionsList from "../lists/RecentTransactionsList";
+import TopSelllingsList from "../lists/TopSellingsList";
+import "./index.css";
 
 const StatsBox = ({
   type = "number",
@@ -47,7 +48,22 @@ const StatsBox = ({
 };
 
 function Dashboard() {
-  const [revenueVariance, setRevenueVariance] = useState(10);
+  const [totalUsers, setTotalUsers] = useState(0);
+  const [topSellings, setTopSellings] = useState(0);
+  const [recentSales, setRecentSales] = useState(0);
+
+  useEffect(() => {
+    const executeAsync = async () => {
+      const response = await getTotalUsers();
+      const topSellingsResponse = await getTopSelling();
+      const recentSalesResponse = await getRecentSales();
+
+      setRecentSales(recentSalesResponse.reduce((acc, sale) => acc + parseFloat(sale.total_value), 0))
+      setTopSellings(topSellingsResponse.reduce((acc, product) => acc + product.sold_quantity, 0))
+      setTotalUsers(response)
+    }
+    executeAsync();
+  }, [])
 
   return (
     <>
@@ -66,20 +82,20 @@ function Dashboard() {
               type="currency"
               name="Receita"
               icon={ImgMoney}
-              variance={revenueVariance}
-              value={100}
+              variance={recentSales}
+              value={recentSales}
             />
             <StatsBox
               name="Produtos Vendidos"
               icon={ProductSold}
-              variance={revenueVariance}
-              value={100}
+              variance={topSellings}
+              value={topSellings}
             />
             <StatsBox
               name="Usuários"
               icon={CustomerCircle}
-              variance={revenueVariance}
-              value={100}
+              variance={totalUsers}
+              value={totalUsers}
             />
           </div>
           <div className="flex flex-col md:flex-row gap-4">
