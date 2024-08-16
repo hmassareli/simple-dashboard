@@ -102,6 +102,11 @@ export function CreateProduct() {
     }
   };
 
+  const handleRemoveImage = (index: number) => {
+    setPreviewImages((prevImages) => prevImages.filter((_, i) => i !== index));
+    setImages((prevImages) => prevImages.filter((_, i) => i !== index));
+  };
+
   const getNumericValue = (value: string) => {
     value = value.replace(/\D/g, "");
     value = value.replace(/(\d)(\d{2})$/, "$1,$2");
@@ -372,12 +377,20 @@ export function CreateProduct() {
                       <div className="grid gap-2">
                         <div className="grid grid-cols-2 gap-2">
                           {previewImages.map((image, index) => (
-                            <img
-                              key={index}
-                              src={image.preview}
-                              alt={`Product Preview ${index + 1}`}
-                              className="aspect-square w-full object-cover rounded-md"
-                            />
+                            <div key={index} className="relative">
+                              <img
+                                src={image.preview}
+                                alt={`Product Preview ${index + 1}`}
+                                className="aspect-square w-full object-cover rounded-md"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => removeImage(index)}
+                                className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1"
+                              >
+                                X
+                              </button>
+                            </div>
                           ))}
                           <label
                             htmlFor="file-upload"
