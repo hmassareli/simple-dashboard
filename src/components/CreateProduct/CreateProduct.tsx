@@ -35,7 +35,7 @@ import { Textarea } from "@/components/ui/textarea";
 import CustomMultiSelect from "../CustomMultiSelect";
 import DiscountInput from "../DiscountInput";
 import PriceInput from "../PriceInput";
-import { ChevronLeft, LoaderCircle, UploadIcon } from "lucide-react";
+import { ChevronLeft, LoaderCircle, TrashIcon, UploadIcon } from "lucide-react";
 
 const productSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório"),
@@ -372,25 +372,21 @@ export function CreateProduct() {
                       <CardHeader>
                         <CardTitle>Imagens do produto</CardTitle>
                         <CardDescription>
-                          Lipsum dolor sit amet, consectetur adipiscing elit
+                          Adicione ou remova imagens deste produto
                         </CardDescription>
                       </CardHeader>
                       <CardContent>
                         <div className="grid gap-2">
                           <div className="grid grid-cols-2 gap-2">
                             {previewImages.map((image, index) => (
-                              <div key={index} className="relative">
+                              <div key={index} className="relative w-fit h-fit">
                                 <img
                                   src={image.preview}
                                   alt={`Product Preview ${index + 1}`}
                                   className="aspect-square w-full object-cover rounded-md"
                                 />
-                                <button
-                                  type="button"
-                                  onClick={() => handleRemoveImage(index)}
-                                  className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1"
-                                >
-                                  X
+                                <button type="button" onClick={() => handleRemoveImage(index)} className="absolute top-1 right-1 bg-gray-100 hover:bg-gray-200/30 p-1 rounded-full transition-all">
+                                  <TrashIcon className="w-4 h-4 text-red-600" />
                                 </button>
                               </div>
                             ))}
