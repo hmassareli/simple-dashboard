@@ -63,6 +63,16 @@ export function CreateProduct() {
   const [images, setImages] = useState<File[]>([]);
   const [previewImages, setPreviewImages] = useState<{ name: string; preview: string }[]>([]);
 
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+    watch
+  } = useForm({
+    resolver: zodResolver(productSchema),
+  });
+
   useEffect(() => {
     api.get("admin/list-categories").then((res) => {
       setCategories(res.data);
@@ -73,17 +83,9 @@ export function CreateProduct() {
     api.get("admin/get-colors").then((res) => {
       setColors(res.data);
     });
-  }, []);
 
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    formState: { errors },
-    watch
-  } = useForm({
-    resolver: zodResolver(productSchema),
-  });
+    setValue('discount', 0)
+  }, []);
 
   const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -129,7 +131,7 @@ export function CreateProduct() {
         price: parseFloat(data.price.replaceAll(".", "").replace(",", ".")),
         title: data.name,
         description: data.description,
-        discount: data.discount,
+        discount: data.discount ?? 0,
         stock_total: data.stock,
         brand: data.brand,
         categories: data.selectedCategories,
