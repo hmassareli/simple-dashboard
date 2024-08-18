@@ -1,5 +1,12 @@
 import api from "@/api/api";
-import { createProductImageById, CreateProductInterface, deleteProductImageById, getProductById, Product, updateProductById } from "@/api/products";
+import {
+  createProductImageById,
+  CreateProductInterface,
+  deleteProductImagesById,
+  getProductById,
+  Product,
+  updateProductById,
+} from "@/api/products";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -48,8 +55,7 @@ const productSchema = z.object({
   price: z.string().min(1, "Preço deve ser positivo"),
   discount: z.number().positive("Desconto deve ser positivo"),
   stock: z.number().min(1, "Quantidade deve ser pelo menos 1"),
-  images: z
-    .array(z.instanceof(File)),
+  images: z.array(z.instanceof(File)),
 });
 
 export function EditProduct() {
@@ -57,8 +63,8 @@ export function EditProduct() {
   const { id: product_id } = useParams();
 
   if (!product_id) {
-    navigate("/products")
-    return
+    navigate("/products");
+    return;
   }
 
   const [selectedProduct, setSelectedProduct] = useState<Product>();
@@ -73,8 +79,12 @@ export function EditProduct() {
     { id: number; hexa_code: string; color_name: string }[]
   >([]);
   const [images, setImages] = useState<File[]>([]);
-  const [previewImages, setPreviewImages] = useState<{ name: string; preview: string }[]>([]);
-  const [currentImages, setCurrentImages] = useState<{ name: string; preview: string }[]>([]);
+  const [previewImages, setPreviewImages] = useState<
+    { name: string; preview: string }[]
+  >([]);
+  const [currentImages, setCurrentImages] = useState<
+    { name: string; preview: string }[]
+  >([]);
 
   const {
     register,
@@ -82,7 +92,7 @@ export function EditProduct() {
     setValue,
     formState: { errors },
     reset,
-    watch
+    watch,
   } = useForm({
     resolver: zodResolver(productSchema),
   });
@@ -101,42 +111,42 @@ export function EditProduct() {
       setColors(res.data);
     });
 
-    setValue('discount', 0)
+    setValue("discount", 0);
   }, []);
-
 
   useEffect(() => {
     const executeAsync = async () => {
       try {
-        const product = await getProductById(Number(product_id))
+        const product = await getProductById(Number(product_id));
 
-        setSelectedProduct(product)
+        setSelectedProduct(product);
 
         reset({
           name: product.title,
           description: product.description,
-          selectedCategories: product.product_categories.map(category => (category.id)),
-          selectedColors: product.product_colors.map(color => (color.color_id)),
+          selectedCategories: product.product_categories.map(
+            (category) => category.id
+          ),
+          selectedColors: product.product_colors.map((color) => color.color_id),
           brand: product.brand,
           price: product.price,
           discount: Number(product.discount) ?? 0,
           stock: Number(product.stock_total),
-          images: []
+          images: [],
         });
 
-        const imagePreviews = product.product_image.map(image => ({
+        const imagePreviews = product.product_image.map((image) => ({
           name: String(image.id),
-          preview: image.url
+          preview: image.url,
         }));
         setPreviewImages(imagePreviews);
-        setCurrentImages(imagePreviews)
-
+        setCurrentImages(imagePreviews);
       } catch (error) {
         console.error("Error fetching product:", error);
       }
-    }
-    executeAsync()
-  }, [product_id])
+    };
+    executeAsync();
+  }, [product_id]);
 
   const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -156,7 +166,9 @@ export function EditProduct() {
 
   const handleImageRemove = (image: { name: string; preview: string }) => {
     setPreviewImages((prevPreviewImages) => {
-      const updatedPreviewImages = prevPreviewImages.filter((img) => img.name !== image.name);
+      const updatedPreviewImages = prevPreviewImages.filter(
+        (img) => img.name !== image.name
+      );
       return updatedPreviewImages;
     });
 
@@ -166,9 +178,10 @@ export function EditProduct() {
       return updatedImages;
     });
 
-    setCurrentImages((prevCurrentImages) => prevCurrentImages.filter((img) => img.name !== image.name));
+    setCurrentImages((prevCurrentImages) =>
+      prevCurrentImages.filter((img) => img.name !== image.name)
+    );
   };
-
 
   const getNumericValue = (value: string) => {
     value = value.replace(/\D/g, "");
@@ -178,30 +191,33 @@ export function EditProduct() {
   };
 
   const onSubmit = async (data: any) => {
+    console.log(data);
     try {
-      setIsLoading(true)
+      setIsLoading(true);
 
-      const removedImages = selectedProduct?.product_image
-        .filter(image =>
-          !currentImages.some(cimage => cimage.name === String(image.id))
-        );
+      const removedImages =
+        selectedProduct?.product_image.filter(
+          (image) =>
+            !currentImages.some((cimage) => cimage.name === String(image.id))
+        ) || [];
 
-      if (removedImages) {
-        for (const image of removedImages) {
-          await deleteProductImageById(image.id)
-        }
+      if (removedImages?.length > 0) {
+        await deleteProductImagesById(removedImages.map((image) => image.id));
       }
 
       const uploadedLinksArray = await Promise.all(
         data.images.map(async (file: File) => {
           const response = await uploadImage(file);
-          console.log("response", response)
+          console.log("response", response);
           return response;
         })
       );
 
       for (const item of uploadedLinksArray) {
-        const response = await createProductImageById(selectedProduct?.id, item)
+        const response = await createProductImageById(
+          selectedProduct?.id as number,
+          item
+        );
       }
 
       const updatedProduct: CreateProductInterface = {
@@ -213,16 +229,19 @@ export function EditProduct() {
         brand: data.brand,
         categories: data.selectedCategories,
         colors: data.selectedColors,
-      }
+      };
 
-      const response = await updateProductById(selectedProduct?.id, updatedProduct);
+      const response = await updateProductById(
+        selectedProduct?.id as number,
+        updatedProduct
+      );
       if (response) {
-        navigate("/products")
+        navigate("/products");
       }
     } catch (error) {
-      console.log("UpdateProduct Error", error)
+      console.log("UpdateProduct Error", error);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
   };
 
@@ -269,9 +288,9 @@ export function EditProduct() {
                       </Button>
                     </Link>
                     <Button disabled={isLoading} type="submit" size="sm">
-                      {
-                        isLoading && (<LoaderCircle className="w-4 h-4 mr-2 animate-spin" />)
-                      }
+                      {isLoading && (
+                        <LoaderCircle className="w-4 h-4 mr-2 animate-spin" />
+                      )}
                       Salvar Produto
                     </Button>
                   </div>
@@ -324,7 +343,7 @@ export function EditProduct() {
                               values={watch("selectedCategories")}
                               list={categories}
                               onValuesChange={(values) => {
-                                setValue("selectedCategories", values)
+                                setValue("selectedCategories", values);
                               }}
                             />
                             {errors.selectedCategories && (
@@ -358,7 +377,9 @@ export function EditProduct() {
                             <Select
                               disabled={isLoading}
                               value={String(watch("brand"))}
-                              onValueChange={(value) => setValue("brand", Number(value))}
+                              onValueChange={(value) =>
+                                setValue("brand", Number(value))
+                              }
                             >
                               <SelectTrigger
                                 id="brand"
@@ -368,7 +389,10 @@ export function EditProduct() {
                               </SelectTrigger>
                               <SelectContent>
                                 {brands.map((brand) => (
-                                  <SelectItem key={brand.id} value={String(brand.id)}>
+                                  <SelectItem
+                                    key={brand.id}
+                                    value={String(brand.id)}
+                                  >
                                     {brand.name}
                                   </SelectItem>
                                 ))}
@@ -386,7 +410,10 @@ export function EditProduct() {
                               disabled={isLoading}
                               value={watch("price")}
                               onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                                setValue("price", getNumericValue(e.target.value));
+                                setValue(
+                                  "price",
+                                  getNumericValue(e.target.value)
+                                );
                               }}
                             />
                             {errors.price && (
@@ -401,7 +428,10 @@ export function EditProduct() {
                               disabled={isLoading}
                               value={watch("discount")}
                               onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                                setValue("discount", e.target.value.replace(/\D/g, ""));
+                                setValue(
+                                  "discount",
+                                  e.target.value.replace(/\D/g, "")
+                                );
                               }}
                             />
                             {errors.discount && (
@@ -458,15 +488,20 @@ export function EditProduct() {
                                   alt={`Product Preview ${index + 1}`}
                                   className="aspect-square w-full object-cover rounded-md"
                                 />
-                                <button type="button" onClick={() => handleImageRemove(image)} className="absolute top-1 right-1 bg-gray-100 hover:bg-gray-200/30 p-1 rounded-full transition-all">
+                                <button
+                                  type="button"
+                                  onClick={() => handleImageRemove(image)}
+                                  className="absolute top-1 right-1 bg-gray-100 hover:bg-gray-200/30 p-1 rounded-full transition-all"
+                                >
                                   <TrashIcon className="w-4 h-4 text-red-600" />
                                 </button>
                               </div>
                             ))}
                             <label
                               htmlFor="file-upload"
-                              className={`cursor-pointer flex aspect-square w-full col-span-${images.length ? 1 : 2
-                                } items-center justify-center rounded-md border border-dashed`}
+                              className={`cursor-pointer flex aspect-square w-full col-span-${
+                                images.length ? 1 : 2
+                              } items-center justify-center rounded-md border border-dashed`}
                             >
                               <UploadIcon className="h-4 w-4 text-muted-foreground" />
                               <span className="sr-only">Upload</span>
@@ -492,10 +527,20 @@ export function EditProduct() {
                   </div>
                 </div>
                 <div className="flex mt-4 items-center justify-center gap-2 md:hidden">
-                  <Button className="w-full" disabled={isLoading} variant="outline" size="sm">
+                  <Button
+                    className="w-full"
+                    disabled={isLoading}
+                    variant="outline"
+                    size="sm"
+                  >
                     Descartar
                   </Button>
-                  <Button className="w-full" disabled={isLoading} type="submit" size="sm">
+                  <Button
+                    className="w-full"
+                    disabled={isLoading}
+                    type="submit"
+                    size="sm"
+                  >
                     Salvar Produto
                   </Button>
                 </div>

@@ -30,7 +30,7 @@ export interface Product {
   discount: string;
   price: string;
   product_image: ProductImage[];
-  product_colors: ProductColor[]
+  product_colors: ProductColor[];
   title: string;
   stock_total: number;
   product_categories: ProductCategory[];
@@ -50,16 +50,25 @@ export interface CreateProductInterface {
   brand: string;
   price: number;
   stock_total: number;
-  images: string[];
+  images?: string[];
 }
 
 export const getProducts = async (page: number, pageSize: number) => {
-  const { data } = await api.post<ResponseProducts>(`/admin/list-products?page=${page}&pageSize=${pageSize}`);
+  const { data } = await api.post<ResponseProducts>(
+    `/admin/list-products?page=${page}&pageSize=${pageSize}`
+  );
   return data;
 };
 
-export const searchProducts = async (searchedText: string, page: number, pageSize: number) => {
-  const { data } = await api.post<ResponseProducts>(`/admin/list-products?page=${page}&pageSize=${pageSize}`, { search: searchedText });
+export const searchProducts = async (
+  searchedText: string,
+  page: number,
+  pageSize: number
+) => {
+  const { data } = await api.post<ResponseProducts>(
+    `/admin/list-products?page=${page}&pageSize=${pageSize}`,
+    { search: searchedText }
+  );
   return data;
 };
 
@@ -70,7 +79,7 @@ export const deleteProduct = async (product_id: number) => {
 
 export const createProduct = async (product: CreateProductInterface) => {
   const { data } = await api.post(`/admin/create-product`, {
-    ...product
+    ...product,
   });
   return data;
 };
@@ -80,7 +89,10 @@ export const getProductById = async (product_id: number) => {
   return data;
 };
 
-export const updateProductById = async (product_id: number, product_updated: Product) => {
+export const updateProductById = async (
+  product_id: number,
+  product_updated: Product
+) => {
   const { data } = await api.put(`/admin/get-product/${product_id}`, {
     data: {
       price: product_updated.price,
@@ -89,26 +101,29 @@ export const updateProductById = async (product_id: number, product_updated: Pro
       discount: product_updated.discount,
       stock_total: product_updated.stock_total,
       brand: product_updated.brand,
-    }
+    },
   });
   return data;
 };
 
-export const deleteProductImageById = async (image_id: number) => {
+export const deleteProductImagesById = async (image_ids: number[]) => {
   const { data } = await api.delete(`/admin/delete-product-images`, {
     data: {
-      product_image_id: image_id
-    }
+      product_image_id: image_ids,
+    },
   });
   return data;
 };
 
-export const createProductImageById = async (product_id: number, image_id: number) => {
+export const createProductImageById = async (
+  product_id: number,
+  image_id: number
+) => {
   const { data } = await api.post(`/admin/create-product-images`, {
     data: {
       product_id: product_id,
       data: image_id,
-    }
+    },
   });
   return data;
 };
