@@ -41,7 +41,7 @@ export interface Sale {
   deleted_at: string | null;
   users: {
     name: string;
-  }
+  };
 }
 
 export const getSalesGraph = async () => {
