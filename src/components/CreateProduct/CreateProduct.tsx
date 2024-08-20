@@ -46,7 +46,7 @@ const productSchema = z.object({
   selectedColors: z.array(z.number()).nonempty("Selecione pelo menos uma cor"),
   brand: z.number().min(1, "Marca é obrigatória"),
   price: z.string().min(1, "Preço é obrigatório"),
-  discount: z.number().positive("Desconto deve ser positivo"),
+  discount: z.number(),
   stock: z.number().min(1, "Quantidade deve ser pelo menos 1"),
   images: z
     .array(z.instanceof(File))
@@ -326,6 +326,7 @@ export function CreateProduct() {
                             <Label htmlFor="price">Desconto</Label>
                             <DiscountInput
                               disabled={isLoading}
+                              value={watch("discount")}
                               onChange={(e: ChangeEvent<HTMLInputElement>) => {
                                 setValue(
                                   "discount",
