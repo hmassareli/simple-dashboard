@@ -117,12 +117,12 @@ export const deleteProductImagesById = async (image_ids: number[]) => {
 
 export const createProductImageById = async (
   product_id: number,
-  image_id: number
+  images: string[]
 ) => {
   const { data } = await api.post(`/admin/create-product-images`, {
     data: {
       product_id: product_id,
-      data: image_id,
+      data: images,
     },
   });
   return data;

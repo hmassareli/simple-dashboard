@@ -213,12 +213,10 @@ export function EditProduct() {
         })
       );
 
-      for (const item of uploadedLinksArray) {
-        const response = await createProductImageById(
-          selectedProduct?.id as number,
-          item
-        );
-      }
+      await createProductImageById(
+        selectedProduct?.id as number,
+        uploadedLinksArray
+      );
 
       const updatedProduct: CreateProductInterface = {
         price: data.price,
@@ -499,9 +497,8 @@ export function EditProduct() {
                             ))}
                             <label
                               htmlFor="file-upload"
-                              className={`cursor-pointer flex aspect-square w-full col-span-${
-                                images.length ? 1 : 2
-                              } items-center justify-center rounded-md border border-dashed`}
+                              className={`cursor-pointer flex aspect-square w-full col-span-${images.length ? 1 : 2
+                                } items-center justify-center rounded-md border border-dashed`}
                             >
                               <UploadIcon className="h-4 w-4 text-muted-foreground" />
                               <span className="sr-only">Upload</span>
