@@ -430,7 +430,7 @@ export function EditProduct() {
                               onChange={(e: ChangeEvent<HTMLInputElement>) => {
                                 setValue(
                                   "discount",
-                                  e.target.value.replace(/\D/g, "")
+                                  Number(e.target.value.replace(/\D/g, ""))
                                 );
                               }}
                             />

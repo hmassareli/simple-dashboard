@@ -126,7 +126,7 @@ export function CreateProduct() {
           return response;
         })
       );
-
+      
       const createdProduct: CreateProductInterface = {
         price: parseFloat(data.price.replaceAll(".", "").replace(",", ".")),
         title: data.name,
