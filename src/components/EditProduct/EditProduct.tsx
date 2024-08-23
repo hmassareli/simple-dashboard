@@ -191,7 +191,6 @@ export function EditProduct() {
   };
 
   const onSubmit = async (data: any) => {
-    console.log(data);
     try {
       setIsLoading(true);
 
@@ -213,9 +212,11 @@ export function EditProduct() {
         })
       );
 
+      const uploadedImagesResult: any = uploadedLinksArray.map(image => (image));
+
       await createProductImageById(
         selectedProduct?.id as number,
-        uploadedLinksArray
+        uploadedImagesResult
       );
 
       const updatedProduct: CreateProductInterface = {

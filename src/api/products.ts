@@ -93,7 +93,7 @@ export const updateProductById = async (
   product_id: number,
   product_updated: Product
 ) => {
-  const { data } = await api.put(`/admin/get-product/${product_id}`, {
+  const { data } = await api.put(`/admin/update-product/${product_id}`, {
     data: {
       price: product_updated.price,
       title: product_updated.title,
@@ -120,10 +120,8 @@ export const createProductImageById = async (
   images: string[]
 ) => {
   const { data } = await api.post(`/admin/create-product-images`, {
-    data: {
-      product_id: product_id,
       data: images,
-    },
+      product_id: product_id,
   });
   return data;
 };
