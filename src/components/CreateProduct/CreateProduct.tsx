@@ -127,6 +127,8 @@ export function CreateProduct() {
         })
       );
       
+      const uploadedImagesResult: any = uploadedLinksArray.map(image => (image));
+
       const createdProduct: CreateProductInterface = {
         price: parseFloat(data.price.replaceAll(".", "").replace(",", ".")),
         title: data.name,
@@ -135,7 +137,7 @@ export function CreateProduct() {
         stock_total: data.stock,
         brand: data.brand,
         categories: data.selectedCategories,
-        images: uploadedLinksArray,
+        images: uploadedImagesResult,
         colors: data.selectedColors,
       }
 
