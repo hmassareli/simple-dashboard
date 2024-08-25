@@ -77,6 +77,8 @@ const productSchema = z.object({
   images: z.array(z.instanceof(File)),
 });
 
+let lastImagesSelected: any[] = []
+
 export function EditProduct() {
   const navigate = useNavigate();
   const { id: product_id } = useParams();
@@ -217,6 +219,7 @@ export function EditProduct() {
     if (files) {
       const fileArray = Array.from(files);
       const uploadedImages = Array.from(files).map((file) => {
+        lastImagesSelected.push(file)
         return {
           name: file.name,
           preview: URL.createObjectURL(file),
@@ -245,6 +248,9 @@ export function EditProduct() {
     setCurrentImages((prevCurrentImages) =>
       prevCurrentImages.filter((img) => img.name !== image.name)
     );
+
+    let ImageIndex = images.findIndex((image) => image.name === image.name);
+    lastImagesSelected.splice(ImageIndex, 1);
   };
 
   const getNumericValue = (value: string) => {
@@ -269,9 +275,8 @@ export function EditProduct() {
       }
 
       const uploadedLinksArray = await Promise.all(
-        data.images.map(async (file: File) => {
+        lastImagesSelected.map(async (file: File) => {
           const response = await uploadImage(file);
-          console.log("response", response);
           return response;
         })
       );

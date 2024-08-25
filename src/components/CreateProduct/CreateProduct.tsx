@@ -76,6 +76,8 @@ const productSchema = z.object({
     .nonempty("Adicione pelo menos uma imagem"),
 });
 
+let lastImagesSelected: any[] = []
+
 export function CreateProduct() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
@@ -167,6 +169,7 @@ export function CreateProduct() {
       const fileArray = Array.from(files);
 
       const uploadedImages = Array.from(files).map((file) => {
+        lastImagesSelected.push(file)
         return {
           name: file.name,
           preview: URL.createObjectURL(file),
@@ -181,6 +184,7 @@ export function CreateProduct() {
   const handleRemoveImage = (index: number) => {
     setPreviewImages((prevImages) => prevImages.filter((_, i) => i !== index));
     setImages((prevImages) => prevImages.filter((_, i) => i !== index));
+    lastImagesSelected.splice(index, 1);
   };
 
   const getNumericValue = (value: string) => {
@@ -195,7 +199,7 @@ export function CreateProduct() {
       setIsLoading(true);
 
       const uploadedLinksArray = await Promise.all(
-        data.images.map(async (file: File) => {
+        lastImagesSelected.map(async (file: File) => {
           const response = await uploadImage(file);
           return response;
         })
