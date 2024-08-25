@@ -91,7 +91,7 @@ export const getProductById = async (product_id: number) => {
 
 export const updateProductById = async (
   product_id: number,
-  product_updated: Product
+  product_updated: CreateProductInterface
 ) => {
   const { data } = await api.put(`/admin/update-product/${product_id}`, {
     data: {
@@ -120,8 +120,28 @@ export const createProductImageById = async (
   images: string[]
 ) => {
   const { data } = await api.post(`/admin/create-product-images`, {
-      data: images,
-      product_id: product_id,
+    data: images,
+    product_id: product_id,
+  });
+  return data;
+};
+
+export const createProductCategory = async (
+  category: string,
+  type: string,
+  parent: number
+) => {
+  const { data } = await api.post(`/admin/create-category`, {
+    name: category,
+    type: type,
+    parent: parent,
+  });
+  return data;
+};
+
+export const createProductBrand = async (brand: string) => {
+  const { data } = await api.post(`/admin/create-brand`, {
+    name: brand,
   });
   return data;
 };
