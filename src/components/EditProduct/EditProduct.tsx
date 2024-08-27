@@ -2,6 +2,8 @@ import api from "@/api/api";
 import {
   createProductImageById,
   CreateProductInterface,
+  createProductCategory,
+  createProductBrand,
   deleteProductImagesById,
   getProductById,
   Product,
@@ -35,7 +37,13 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { uploadImage } from "@/storage";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ChevronLeft, LoaderCircle, TrashIcon, UploadIcon } from "lucide-react";
+import {
+  ChevronLeft,
+  LoaderCircle,
+  TrashIcon,
+  UploadIcon,
+  PlusIcon,
+} from "lucide-react";
 import { ChangeEvent, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -43,6 +51,17 @@ import { z } from "zod";
 import CustomMultiSelect from "../CustomMultiSelect";
 import DiscountInput from "../DiscountInput";
 import PriceInput from "../PriceInput";
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
+
+import { AlertDialogHeader, AlertDialogFooter } from "../ui/alert-dialog";
 
 const productSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório"),
@@ -57,6 +76,8 @@ const productSchema = z.object({
   stock: z.number().min(1, "Quantidade deve ser pelo menos 1"),
   images: z.array(z.instanceof(File)),
 });
+
+let lastImagesSelected: any[] = []
 
 export function EditProduct() {
   const navigate = useNavigate();
@@ -76,7 +97,7 @@ export function EditProduct() {
   );
   const [brands, setBrands] = useState<{ id: number; name: string }[]>([]);
   const [colors, setColors] = useState<
-    { id: number; hexa_code: string; color_name: string }[]
+  { id: number; hexa_code: string; color_name: string }[]
   >([]);
   const [images, setImages] = useState<File[]>([]);
   const [previewImages, setPreviewImages] = useState<
@@ -84,8 +105,11 @@ export function EditProduct() {
   >([]);
   const [currentImages, setCurrentImages] = useState<
     { name: string; preview: string }[]
-  >([]);
-
+    >([]);
+  const [newCategory, setNewCategory] = useState("");
+  const [newCategoryType, setNewCategoryType] = useState("M");
+  const [newBrand, setNewBrand] = useState("");
+  
   const {
     register,
     handleSubmit,
@@ -148,11 +172,54 @@ export function EditProduct() {
     executeAsync();
   }, [product_id]);
 
+  const handleCreateCategory = async (
+    category: string,
+    category_type: string
+  ) => {
+    await createProductCategory(category, category_type, 1);
+  };
+
+  const handleAddCategory = () => {
+    if (
+      newCategory.trim() !== "" &&
+      newCategoryType.trim() !== "" &&
+      !categories.some((category) => category.name === newCategory)
+    ) {
+      const newCategoryData: { id: number; name: string } = {
+        id: categories.length + 1,
+        name: newCategory,
+      };
+      setCategories([newCategoryData, ...categories]);
+      handleCreateCategory(newCategory, newCategoryType);
+      setNewCategory("");
+    }
+  };
+
+  const handleCreateBrand = async (brand: string) => {
+    await createProductBrand(brand);
+  }
+
+  const handleAddBrand = () => {
+    if (
+      newBrand.trim() !== "" &&
+      !brands.some((brand) => brand.name === newBrand)
+    ) {
+      const newBrandData: { id: number; name: string } = {
+        id: brands.length + 1,
+        name: newBrand,
+      };
+      setBrands([newBrandData, ...brands]);
+      handleCreateBrand(newBrand);
+      setNewBrand("");
+    }
+  };
+
   const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files) {
       const fileArray = Array.from(files);
       const uploadedImages = Array.from(files).map((file) => {
+        lastImagesSelected.push(file)
         return {
           name: file.name,
           preview: URL.createObjectURL(file),
@@ -181,6 +248,9 @@ export function EditProduct() {
     setCurrentImages((prevCurrentImages) =>
       prevCurrentImages.filter((img) => img.name !== image.name)
     );
+
+    let ImageIndex = images.findIndex((image) => image.name === image.name);
+    lastImagesSelected.splice(ImageIndex, 1);
   };
 
   const getNumericValue = (value: string) => {
@@ -191,7 +261,6 @@ export function EditProduct() {
   };
 
   const onSubmit = async (data: any) => {
-    console.log(data);
     try {
       setIsLoading(true);
 
@@ -206,16 +275,19 @@ export function EditProduct() {
       }
 
       const uploadedLinksArray = await Promise.all(
-        data.images.map(async (file: File) => {
+        lastImagesSelected.map(async (file: File) => {
           const response = await uploadImage(file);
-          console.log("response", response);
           return response;
         })
       );
 
+      const uploadedImagesResult: any = uploadedLinksArray.map(
+        (image) => image
+      );
+
       await createProductImageById(
         selectedProduct?.id as number,
-        uploadedLinksArray
+        uploadedImagesResult
       );
 
       const updatedProduct: CreateProductInterface = {
@@ -335,15 +407,80 @@ export function EditProduct() {
                           </div>
                           <div className="grid gap-3">
                             <Label htmlFor="category">Categorias</Label>
-                            <CustomMultiSelect
-                              disabled={isLoading}
-                              placeholder="Selecione as Categorias"
-                              values={watch("selectedCategories")}
-                              list={categories}
-                              onValuesChange={(values) => {
-                                setValue("selectedCategories", values);
-                              }}
-                            />
+                            <div className="flex flex-row gap-2">
+                              <CustomMultiSelect
+                                disabled={isLoading}
+                                placeholder="Selecione as Categorias"
+                                values={watch("selectedCategories")}
+                                list={categories}
+                                onValuesChange={(values) => {
+                                  setValue("selectedCategories", values);
+                                }}
+                              />
+                              <AlertDialog>
+                                <AlertDialogTrigger>
+                                  <PlusIcon className="h-4 w-4" />
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>
+                                      Criar Nova Categoria
+                                    </AlertDialogTitle>
+                                  </AlertDialogHeader>
+                                  <AlertDialogDescription>
+                                    <div className="flex flex-col space-y-2">
+                                      <Input
+                                        id="category"
+                                        type="text"
+                                        className="w-full"
+                                        value={newCategory}
+                                        placeholder="Nome da categoria"
+                                        onChange={(e) =>
+                                          setNewCategory(e.target.value)
+                                        }
+                                      />
+                                      <Select
+                                        value={newCategoryType}
+                                        onValueChange={(value) => {
+                                          console.log(value);
+                                          setNewCategoryType(value);
+                                        }}
+                                      >
+                                        <SelectTrigger
+                                          id="category_type"
+                                          aria-label="Selecione um tipo de categoria"
+                                        >
+                                          <SelectValue placeholder="Selecione um tipo de categoria" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          <SelectItem key={1} value="M">
+                                            Masculino
+                                          </SelectItem>
+                                          <SelectItem key={2} value="F">
+                                            Feminino
+                                          </SelectItem>
+                                        </SelectContent>
+                                      </Select>
+                                    </div>
+                                  </AlertDialogDescription>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>
+                                      Cancelar
+                                    </AlertDialogCancel>
+                                    <AlertDialogAction asChild>
+                                      <Button
+                                        disabled={newCategory.trim() === ""}
+                                        type="button"
+                                        onClick={handleAddCategory}
+                                        variant="default"
+                                      >
+                                        Adicionar
+                                      </Button>
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </div>
                             {errors.selectedCategories && (
                               <span className="text-red-500">
                                 {errors.selectedCategories.message?.toString()}
@@ -372,30 +509,73 @@ export function EditProduct() {
                           </div>
                           <div className="grid gap-3">
                             <Label htmlFor="brand">Marca</Label>
-                            <Select
-                              disabled={isLoading}
-                              value={String(watch("brand"))}
-                              onValueChange={(value) =>
-                                setValue("brand", Number(value))
-                              }
-                            >
-                              <SelectTrigger
-                                id="brand"
-                                aria-label="Selecione a Marca"
+                            <div className="flex flex-row gap-2">
+                              <Select
+                                disabled={isLoading}
+                                value={String(watch("brand"))}
+                                onValueChange={(value) =>
+                                  setValue("brand", Number(value))
+                                }
                               >
-                                <SelectValue placeholder="Selecione a marca" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {brands.map((brand) => (
-                                  <SelectItem
-                                    key={brand.id}
-                                    value={String(brand.id)}
-                                  >
-                                    {brand.name}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
+                                <SelectTrigger
+                                  id="brand"
+                                  aria-label="Selecione a Marca"
+                                >
+                                  <SelectValue placeholder="Selecione a marca" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {brands.map((brand) => (
+                                    <SelectItem
+                                      key={brand.id}
+                                      value={String(brand.id)}
+                                    >
+                                      {brand.name}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <AlertDialog>
+                                <AlertDialogTrigger>
+                                  <PlusIcon className="h-4 w-4" />
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>
+                                      Criar Nova Marca
+                                    </AlertDialogTitle>
+                                  </AlertDialogHeader>
+                                  <AlertDialogDescription>
+                                    <div className="flex flex-col space-y-2">
+                                      <Input
+                                        id="brand"
+                                        type="text"
+                                        className="w-full"
+                                        value={newBrand}
+                                        placeholder="Nome da marca"
+                                        onChange={(e) =>
+                                          setNewBrand(e.target.value)
+                                        }
+                                      />
+                                    </div>
+                                  </AlertDialogDescription>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>
+                                      Cancelar
+                                    </AlertDialogCancel>
+                                    <AlertDialogAction asChild>
+                                      <Button
+                                        disabled={newBrand.trim() === ""}
+                                        type="button"
+                                        onClick={handleAddBrand}
+                                        variant="default"
+                                      >
+                                        Adicionar
+                                      </Button>
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </div>
                             {errors.brand && (
                               <span className="text-red-500">
                                 {errors.brand.message?.toString()}
@@ -497,8 +677,9 @@ export function EditProduct() {
                             ))}
                             <label
                               htmlFor="file-upload"
-                              className={`cursor-pointer flex aspect-square w-full col-span-${images.length ? 1 : 2
-                                } items-center justify-center rounded-md border border-dashed`}
+                              className={`cursor-pointer flex aspect-square w-full col-span-${
+                                images.length ? 1 : 2
+                              } items-center justify-center rounded-md border border-dashed`}
                             >
                               <UploadIcon className="h-4 w-4 text-muted-foreground" />
                               <span className="sr-only">Upload</span>
