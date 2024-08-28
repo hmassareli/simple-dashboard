@@ -4,6 +4,8 @@ import ImgDashboard from "../../assets/home.svg?react";
 import ImgLogout from "../../assets/logout.svg?react";
 // @ts-ignore
 import ImgProduto from "../../assets/produtos.svg?react";
+// @ts-ignore
+import ImgSales from "../../assets/sales.svg?react";
 
 import { useNavigate } from "react-router-dom";
 
@@ -21,12 +23,17 @@ const ThemeWrapper = ({ children }: { children: React.ReactNode }) => {
           <li onClick={() => navigate("/")}>
             {" "}
             <ImgDashboard />
-            Dashboard
+            Painel
           </li>
           <li onClick={() => navigate("/products")}>
             {" "}
             <ImgProduto />
-            Products
+            Produtos
+          </li>
+          <li onClick={() => navigate("/sales")}>
+            {" "}
+            <ImgSales />
+            Vendas
           </li>
 
           <li onClick={() => logout()} style={{ marginTop: "auto" }}>

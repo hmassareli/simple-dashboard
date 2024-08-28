@@ -10,6 +10,8 @@ import ThemeWrapper from "./components/ThemeWrapper/ThemeWrapper.tsx";
 import { AuthProvider } from "./contexts/AuthContext.tsx";
 import "./index.css";
 import { EditProduct } from "./components/EditProduct/EditProduct.tsx";
+import Sales from "./components/Sales/Sales.tsx";
+import { EditSales } from "./components/EditSales/EditSales.tsx";
 
 const router = createBrowserRouter([
   {
@@ -41,7 +43,7 @@ const router = createBrowserRouter([
     ),
   }, 
   {
-    path: "/products/edit/:id",
+    path: "/product/edit/:id",
     element: (
       <ProtectedRoute>
         <ThemeWrapper>
@@ -56,6 +58,26 @@ const router = createBrowserRouter([
       <ProtectedRoute>
         <ThemeWrapper>
           <Products />
+        </ThemeWrapper>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/sales",
+    element: (
+      <ProtectedRoute>
+        <ThemeWrapper>
+          <Sales />
+        </ThemeWrapper>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/sales/edit/:id",
+    element: (
+      <ProtectedRoute>
+        <ThemeWrapper>
+          <EditSales />
         </ThemeWrapper>
       </ProtectedRoute>
     ),
