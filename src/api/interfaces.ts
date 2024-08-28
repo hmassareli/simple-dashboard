@@ -19,7 +19,7 @@ export interface SaleItem {
   products: {
     id: number;
     title: string;
-    price: number;
+    price: string;
     description: string;
     product_image: string[];
   };
@@ -68,7 +68,7 @@ export interface Sale {
   addresses: Addresses;
   payment_methods: PaymentMethods;
   users: { name: string; };
-  deliveryValue: number;
+  deliveryValue: string;
 }
 
 export interface ProductImage {

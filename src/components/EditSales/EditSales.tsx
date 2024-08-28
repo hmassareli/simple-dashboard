@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Input } from "../ui/input";
-import { Sale, SaleItem } from "@/api/interfaces";
+import { SaleItem } from "@/api/interfaces";
 import { getSaleById, updateSaleWithDelivery } from "@/api/sales";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -32,7 +32,7 @@ const saleSchema = z.object({
 });
 
 export function EditSales() {
-  const [sale, setSale] = useState<Sale>();
+  const [sale, setSale] = useState<any>();
   const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
@@ -149,22 +149,55 @@ export function EditSales() {
                             {errors.name.message?.toString()}
                           </span>
                         )}
-                        <div className="flex flex-row p-3 mt-10">
-                          <div className="pr-10">
-                            <div className="font-medium">ID</div>
+                        <div className="flex flex-row p-3 mt-10 flex-wrap gap-10">
+                          <div className="flex flex-col">
+                            <span className="font-medium">ID</span>
                             <span>{sale?.id}</span>
                           </div>
-                          <div className="pr-10">
-                            <div className="font-medium">Nome do usuário</div>
-                            <span>{sale?.users.name}</span>
+                          <div className="flex flex-col">
+                            <span className="font-medium">Nome do usuário</span>
+                            <span>{sale?.users?.name}</span>
                           </div>
-                          <div className="px-10">
-                            <div className="font-medium">Preço total</div>
-                            <span>R$ {sale?.total_value}</span>
+                          <div className="flex flex-col">
+                            <span className="font-medium">Preço total</span>
+                            <span>R$ {parseFloat(sale?.total_value).toFixed(2)}</span>
                           </div>
-                          <div>
-                            <div className="font-medium">Valor do frete</div>
-                            <span>R$ {sale?.deliveryValue}</span>
+                          <div className="flex flex-col">
+                            <span className="font-medium">Valor do frete</span>
+                            <span>R$ {parseFloat(sale?.deliveryValue).toFixed(2)}</span>
+                          </div>
+                          <div className="w-full"></div>
+                          <div className="flex flex-col">
+                            <span className="font-medium">Rua</span>
+                            <span>{sale?.addresses?.street}</span>
+                          </div>
+                          <div className="flex flex-col">
+                            <span className="font-medium">Número</span>
+                            <span>{sale?.addresses?.number}</span>
+                          </div>
+                          <div className="flex flex-col">
+                            <span className="font-medium">Complemento</span>
+                            <span>{sale?.addresses?.additional_info}</span>
+                          </div>
+                          <div className="flex flex-col">
+                            <span className="font-medium">Bairro</span>
+                            <span>{sale?.addresses?.neighborhood}</span>
+                          </div>
+                          <div className="flex flex-col">
+                            <span className="font-medium">Cidade</span>
+                            <span>{sale?.addresses?.city}</span>
+                          </div>
+                          <div className="flex flex-col">
+                            <span className="font-medium">Estado</span>
+                            <span>{sale?.addresses?.state}</span>
+                          </div>
+                          <div className="flex flex-col">
+                            <span className="font-medium">CEP</span>
+                            <span>{sale?.addresses?.zip_code}</span>
+                          </div>
+                          <div className="flex flex-col">
+                            <span className="font-medium">País</span>
+                            <span>{sale?.addresses?.country}</span>
                           </div>
                         </div>
                         <Table className="mt-10">
@@ -175,12 +208,12 @@ export function EditSales() {
                             </TableRow>
                           </TableHeader>
                           <TableBody>
-                            {sale?.sale_items.map((sale, index) => (
+                            {sale?.sale_items.map((sale: SaleItem, index: number) => (
                               <TableRow key={index}>
                                 <TableCell className="font-medium">
                                   {sale.products.title}
                                 </TableCell>
-                                <TableCell>R$ {sale.products.price}</TableCell>
+                                <TableCell>R$ {parseFloat(sale.products.price).toFixed(2)}</TableCell>
                               </TableRow>
                             ))}
                           </TableBody>

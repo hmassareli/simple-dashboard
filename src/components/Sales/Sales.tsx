@@ -1,6 +1,4 @@
-import {
-  ChevronLeftIcon,
-} from "lucide-react";
+import { ChevronLeftIcon } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -101,7 +99,7 @@ export default function Sales() {
                   {sales.map((sale, index) => (
                     <TableRow key={index}>
                       <TableCell className="font-medium">
-                        R$ {sale.total_value}
+                        R$ {parseFloat(sale.total_value.toString()).toFixed(2)}
                       </TableCell>
                       <TableCell>{sale.users.name}</TableCell>
                       <TableCell>
@@ -127,8 +125,12 @@ export default function Sales() {
                                     <span>{sale.addresses.number}</span>
                                   </div>
                                   <div className="flex flex-col">
-                                    <span className="font-medium">Complemento</span>
-                                    <span>{sale.addresses.additional_info}</span>
+                                    <span className="font-medium">
+                                      Complemento
+                                    </span>
+                                    <span>
+                                      {sale.addresses.additional_info}
+                                    </span>
                                   </div>
                                   <div className="flex flex-col">
                                     <span className="font-medium">Bairro</span>
@@ -165,9 +167,7 @@ export default function Sales() {
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <Button
-                            onClick={() =>
-                              navigate(`/sales/edit/${sale.id}`)
-                            }
+                            onClick={() => navigate(`/sales/edit/${sale.id}`)}
                             variant="ghost"
                             size="icon"
                           >
