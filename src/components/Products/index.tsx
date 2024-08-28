@@ -1,4 +1,4 @@
-import { deleteProduct, getProducts, searchProducts, Product } from "@/api/products";
+import { deleteProduct, getProducts, searchProducts } from "@/api/products";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -47,6 +47,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { Link, useNavigate } from "react-router-dom";
+import { Product } from "@/api/interfaces";
 
 export default function Products() {
   const navigate = useNavigate();
@@ -220,7 +221,7 @@ export default function Products() {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          <Button onClick={() => navigate(`/products/edit/${product.id}`)} variant="ghost" size="icon">
+                          <Button onClick={() => navigate(`/product/edit/${product.id}`)} variant="ghost" size="icon">
                             <FilePenIcon className="h-4 w-4" />
                             <span className="sr-only">Edit</span>
                           </Button>

@@ -1,57 +1,5 @@
 import api from "./api";
-
-export interface ProductImage {
-  id: number;
-  url: string;
-  created_date: string;
-  deleted_date: string | null;
-  updated_date: string;
-  product_id: number;
-}
-
-interface ProductColor {
-  id: number;
-  product_id: number;
-  color_id: number;
-  created_date: string;
-  deleted_date: string | null;
-  updated_date: string;
-}
-
-interface ProductCategory {
-  id: number;
-  name: string;
-}
-
-export interface Product {
-  id: number;
-  brand: number;
-  description: string;
-  discount: string;
-  price: string;
-  product_image: ProductImage[];
-  product_colors: ProductColor[];
-  title: string;
-  stock_total: number;
-  product_categories: ProductCategory[];
-}
-
-interface ResponseProducts {
-  products: Product[];
-  totalPages: number;
-}
-
-export interface CreateProductInterface {
-  title: string;
-  description: string;
-  categories: number[];
-  colors: number[];
-  discount: number;
-  brand: string;
-  price: number;
-  stock_total: number;
-  images?: string[];
-}
+import { Product, CreateProductInterface, ResponseProducts } from "./interfaces";
 
 export const getProducts = async (page: number, pageSize: number) => {
   const { data } = await api.post<ResponseProducts>(
