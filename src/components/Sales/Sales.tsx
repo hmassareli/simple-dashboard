@@ -103,7 +103,7 @@ export default function Sales() {
                       <TableCell className="font-medium">
                         R$ {sale.total_value}
                       </TableCell>
-                      <TableCell>{sale.users}</TableCell>
+                      <TableCell>{sale.users.name}</TableCell>
                       <TableCell>
                         <AlertDialog>
                           <AlertDialogTrigger>

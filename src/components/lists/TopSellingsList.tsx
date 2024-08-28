@@ -1,4 +1,5 @@
-import { getTopSelling, Product } from "@/api/dashboad";
+import { getTopSelling } from "@/api/dashboad";
+import { Product } from "@/api/interfaces";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useEffect, useMemo, useState } from "react";

@@ -156,7 +156,7 @@ export function EditSales() {
                           </div>
                           <div className="pr-10">
                             <div className="font-medium">Nome do usuário</div>
-                            <span>{sale?.users}</span>
+                            <span>{sale?.users.name}</span>
                           </div>
                           <div className="px-10">
                             <div className="font-medium">Preço total</div>

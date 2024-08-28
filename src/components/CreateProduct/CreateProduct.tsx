@@ -7,7 +7,6 @@ import { uploadImage } from "@/storage";
 import api from "@/api/api";
 import {
   createProduct,
-  CreateProductInterface,
   createProductCategory,
   createProductBrand,
 } from "@/api/products";
@@ -59,6 +58,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 import { AlertDialogHeader, AlertDialogFooter } from "../ui/alert-dialog";
+import { CreateProductInterface } from "@/api/interfaces";
 
 const productSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório"),

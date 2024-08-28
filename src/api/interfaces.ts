@@ -67,7 +67,7 @@ export interface Sale {
   quantity: number;
   addresses: Addresses;
   payment_methods: PaymentMethods;
-  users: string;
+  users: { name: string; };
   deliveryValue: number;
 }
 
